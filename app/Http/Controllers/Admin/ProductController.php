@@ -35,8 +35,8 @@ class ProductController extends Controller
 
             $data = $request->validated();
             
-            // Xử lý tự động tạo slug nếu để trống
-            $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
+            // SỬA LỖI Ở ĐÂY: Kiểm tra an toàn bằng $request thay vì gọi trực tiếp từ mảng $data
+            $data['slug'] = $request->filled('slug') ? Str::slug($request->slug) : Str::slug($request->name);
             
             // Xử lý logic check trùng slug (nối hậu tố nếu trùng)
             $originalSlug = $data['slug'];
@@ -92,7 +92,9 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             $data = $request->validated();
-            $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
+            
+            // SỬA LỖI Ở ĐÂY TƯƠNG TỰ HÀM STORE
+            $data['slug'] = $request->filled('slug') ? Str::slug($request->slug) : Str::slug($request->name);
             
             $originalSlug = $data['slug'];
             $counter = 1;

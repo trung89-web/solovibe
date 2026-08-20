@@ -2,12 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Frontend\HomeController;
+
 // ==========================================
 // 1. PHẦN FRONTEND (KHÁCH HÀNG)
 // ==========================================
-Route::get('/', function () {
-    return redirect()->route('frontend.products.index');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/san-pham', [\App\Http\Controllers\Frontend\ProductController::class, 'index'])->name('frontend.products.index');
 
 Route::get('/san-pham', [\App\Http\Controllers\Frontend\ProductController::class, 'index'])->name('frontend.products.index');
 Route::get('/san-pham/{product:slug}', [\App\Http\Controllers\Frontend\ProductController::class, 'show'])->name('frontend.products.show');

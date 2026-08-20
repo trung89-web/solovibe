@@ -13,7 +13,12 @@
     <div class="col-md-5 mb-4">
         <div class="card shadow-sm border-0 mb-3">
             @if($product->thumbnail)
-                <img src="{{ asset('storage/' . $product->thumbnail) }}" class="card-img-top rounded" alt="{{ $product->name }}" style="max-height: 400px; object-fit: cover;">
+                @php
+                    // Kiểm tra nếu là link http (online) thì giữ nguyên, ngược lại thì gọi từ storage
+                    $mainImgUrl = str_starts_with($product->thumbnail, 'http') ? $product->thumbnail : asset('storage/' . $product->thumbnail);
+                @endphp
+                <!-- Thêm id="mainProductImage" vào ảnh lớn -->
+                <img id="mainProductImage" src="{{ $mainImgUrl }}" class="card-img-top rounded" alt="{{ $product->name }}" style="max-height: 400px; object-fit: cover;">
             @else
                 <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 400px;">
                     <span>Không có ảnh đại diện</span>
@@ -22,11 +27,24 @@
         </div>
         
         <!-- Gallery ảnh phụ -->
-        @if($product->images && $product->images->count() > 0)
-            <div class="d-flex overflow-auto gap-2">
-                @foreach($product->images as $img)
-                    <img src="{{ asset('storage/' . $img->image_path) }}" class="img-thumbnail shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Gallery">
-                @endforeach
+        @if($product->thumbnail || ($product->images && $product->images->count() > 0))
+            <div class="d-flex overflow-auto gap-2 pb-2">
+                
+                <!-- Hiển thị lại ảnh đại diện làm thumbnail đầu tiên để click quay lại -->
+                @if($product->thumbnail)
+                    <img src="{{ $mainImgUrl }}" class="img-thumbnail shadow-sm border-success" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" alt="Thumbnail" onclick="changeImage(this.src)" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                @endif
+
+                <!-- Các ảnh phụ trong Gallery -->
+                @if($product->images && $product->images->count() > 0)
+                    @foreach($product->images as $img)
+                        @php
+                            $galleryImgUrl = str_starts_with($img->image_path, 'http') ? $img->image_path : asset('storage/' . $img->image_path);
+                        @endphp
+                        <!-- Thêm sự kiện onclick và cursor pointer -->
+                        <img src="{{ $galleryImgUrl }}" class="img-thumbnail shadow-sm" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" alt="Gallery" onclick="changeImage(this.src)" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                    @endforeach
+                @endif
             </div>
         @endif
     </div>
@@ -111,4 +129,11 @@
         @endforeach
     </div>
 @endif
-@endsection 
+
+<!-- JS Xử lý đổi ảnh -->
+<script>
+    function changeImage(newSrc) {
+        document.getElementById('mainProductImage').src = newSrc;
+    }
+</script>
+@endsection
