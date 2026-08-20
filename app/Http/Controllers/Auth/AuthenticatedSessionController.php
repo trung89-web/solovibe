@@ -27,13 +27,13 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // Ép cứng redirect cho Admin (Bỏ intended)
+        // Admin
         if ($request->user()->hasAnyRole(['Super Admin', 'Content Staff'])) {
-            return redirect()->route('products.index'); 
+            return redirect()->route('products.index')->with('success', 'Đăng nhập quyền Admin thành công!'); 
         }
 
-        // Khách hàng thì dùng intended để trả về trang họ đang định vào
-        return redirect()->intended(route('frontend.products.index'));
+        // Khách hàng
+        return redirect()->intended(route('frontend.products.index'))->with('success', 'Đăng nhập thành công!');
     }
 
     /**

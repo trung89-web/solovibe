@@ -35,24 +35,29 @@
 
                     <!-- Nếu ĐÃ đăng nhập -->
                     @auth
-                        <!-- Nút Vào Quản Trị (Chỉ hiện nếu là Admin) -->
-                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Content Staff']))
-                            <li class="nav-item me-2">
-                                <a class="btn btn-warning btn-sm fw-bold" href="{{ route('products.index') }}">
-                                    <i class="bi bi-speedometer2"></i> Vào Quản trị
-                                </a>
-                            </li>
-                        @endif
-
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle fw-bold text-success" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <!-- Sửa text-success thành text-white cho dễ nhìn -->
+                            <a class="nav-link dropdown-toggle fw-bold text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                
+                                <!-- Nút Vào Quản Trị (Chỉ hiện nếu là Admin) -->
+                                @if(auth()->user()->hasAnyRole(['Super Admin', 'Content Staff']))
+                                    <li>
+                                        <a class="dropdown-item text-warning fw-bold" href="{{ route('products.index') }}">
+                                            <i class="bi bi-speedometer2"></i> Vào Quản trị
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                @endif
+
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}" class="m-0">
                                         @csrf
-                                        <button type="submit" class="dropdown-item text-danger">Đăng xuất</button>
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                        </button>
                                     </form>
                                 </li>
                             </ul>
@@ -64,7 +69,15 @@
     </nav>
 
     <!-- Content -->
-    <div class="container">
+    <div class="container mt-3">
+        <!-- Khu vực hiển thị thông báo thành công -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        
         @yield('content')
     </div>
 
