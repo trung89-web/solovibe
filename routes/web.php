@@ -16,7 +16,8 @@ Route::get('/san-pham/{product:slug}', [\App\Http\Controllers\Frontend\ProductCo
 // ==========================================
 // 2. PHẦN ADMIN (YÊU CẦU ĐĂNG NHẬP)
 // ==========================================
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:Super Admin|Content Staff'])->group(function () {
+    
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->except(['show']);
     Route::delete('products/images/{productImage}', [\App\Http\Controllers\Admin\ProductController::class, 'destroyImage'])->name('products.images.destroy');

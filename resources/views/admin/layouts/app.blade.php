@@ -46,6 +46,9 @@
                 <li class="nav-item mt-2">
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
+
+                        <input type="hidden" name="from_admin" value="1">
+                        
                         <button type="submit" class="btn btn-outline-light w-100 text-start">
                             <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
                         </button>

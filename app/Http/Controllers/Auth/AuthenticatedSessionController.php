@@ -41,11 +41,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Kiểm tra xem request có gửi từ Admin Panel không
+        $redirectUrl = $request->has('from_admin') ? route('login') : route('frontend.products.index');
+
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Đẩy thẳng về trang chủ khách hàng sau khi đăng xuất
-        return redirect()->route('frontend.products.index');
+        // Chuyển hướng theo URL đã xác định
+        return redirect($redirectUrl);
     }
 }
