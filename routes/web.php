@@ -30,3 +30,16 @@ Route::prefix('admin')->middleware(['auth', 'role:Super Admin|Content Staff'])->
 // 3. FILE AUTH CỦA BREEZE (Tự động sinh ra)
 // ==========================================
 require __DIR__.'/auth.php';
+
+// ==========================================
+// THƯƠNG MẠI ĐIỆN TỬ - GIỎ HÀNG
+// ==========================================
+use App\Http\Controllers\Frontend\CartController;
+
+Route::prefix('gio-hang')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
+    Route::patch('/update/{productId}', [CartController::class, 'update'])->name('update');
+    Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
+    Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+});
