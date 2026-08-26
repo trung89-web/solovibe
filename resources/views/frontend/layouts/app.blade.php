@@ -11,17 +11,19 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4">
         <div class="container">
-            <a class="navbar-brand" href="#">🌱 Cây Giống Tốt</a>
+            <a class="navbar-brand" href="{{ route('home') }}">🌱 Cây Giống Tốt</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('frontend.products.index') }}">Sản phẩm</a>
+                        <!-- Đã thêm text-white fw-bold -->
+                        <a class="nav-link text-white fw-bold" href="{{ route('frontend.products.index') }}">Sản phẩm</a>
                     </li>
                     <li class="nav-item me-3 mt-1">
-                        <a class="nav-link position-relative text-success fw-bold" href="{{ route('cart.index') }}">
+                        <!-- Đã sửa text-success thành text-white -->
+                        <a class="nav-link position-relative text-white fw-bold" href="{{ route('cart.index') }}">
                             <i class="bi bi-cart3 fs-5"></i> Giỏ hàng
                             <!-- Nếu có sản phẩm thì hiện chấm đỏ -->
                             @if(isset($cartTotalQuantity) && $cartTotalQuantity > 0)

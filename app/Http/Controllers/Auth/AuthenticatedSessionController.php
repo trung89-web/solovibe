@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Khách hàng
-        return redirect()->intended(route('frontend.products.index'))->with('success', 'Đăng nhập thành công!');
+        return redirect()->route('home')->with('success', 'Đăng nhập thành công!');
     }
 
     /**
@@ -49,6 +49,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         // Chuyển hướng theo URL đã xác định
-        return redirect($redirectUrl);
+        return redirect()->route('login');
     }
 }
