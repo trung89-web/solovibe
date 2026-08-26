@@ -11,7 +11,8 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Attribute;
+use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     public function index()
@@ -23,108 +24,213 @@ class ProductController extends Controller
 
     public function create()
     {
-        // Chỉ lấy các danh mục đang hiển thị
-        $categories = Category::where('is_active', true)->get();
-        return view('admin.products.create', compact('categories'));
+        $categories = \App\Models\Category::all();
+        
+        // LẤY THÊM DỮ LIỆU THUỘC TÍNH
+        $attributes = Attribute::with('values')->orderBy('sort_order')->get();
+
+        return view('admin.products.create', compact('categories', 'attributes'));
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(Request $request)
     {
+        // 1. Validate dữ liệu cơ bản (Bạn có thể bổ sung thêm các rule của bạn)
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'sku' => 'required|string|unique:products,sku',
+        ]);
+
         try {
-            DB::beginTransaction(); // Bắt đầu transaction
+            // Bật Transaction: Nếu 1 bảng lưu lỗi, toàn bộ sẽ Rollback, không tạo ra dữ liệu rác
+            DB::beginTransaction();
 
-            $data = $request->validated();
-            
-            // SỬA LỖI Ở ĐÂY: Kiểm tra an toàn bằng $request thay vì gọi trực tiếp từ mảng $data
-            $data['slug'] = $request->filled('slug') ? Str::slug($request->slug) : Str::slug($request->name);
-            
-            // Xử lý logic check trùng slug (nối hậu tố nếu trùng)
-            $originalSlug = $data['slug'];
-            $counter = 1;
-            while (Product::where('slug', $data['slug'])->exists()) {
-                $data['slug'] = $originalSlug . '-' . $counter++;
+            $hasVariations = $request->has('has_variations');
+
+            // 2. Tính toán Giá và Tồn kho cho Sản phẩm cha (Lấy giá Min và tổng tồn kho để dễ hiển thị)
+            $basePrice = $request->price ?? 0;
+            $baseSalePrice = $request->sale_price ?? null;
+            $totalStock = $request->stock_quantity ?? 0;
+
+            if ($hasVariations && $request->has('variations')) {
+                $variations = collect($request->variations);
+                $basePrice = $variations->min('price'); 
+                $totalStock = $variations->sum('stock_quantity');
             }
 
-            // Mặc định các thông số
-            $data['is_featured'] = $request->has('is_featured');
-            $data['sold_count'] = 0;
-            $data['views_count'] = 0;
+            // 3. Tạo Sản phẩm cha (Bảng products)
+            // (Lưu ý: Các biến như thumbnail, description bạn hãy giữ nguyên như code upload cũ của bạn nhé, 
+            // ở đây tôi lược bớt để tập trung vào logic Biến thể)
+            $product = Product::create([
+                'category_id' => $request->category_id,
+                'name' => $request->name,
+                'slug' => \Str::slug($request->name),
+                'sku' => $request->sku,
+                'price' => $basePrice,
+                'sale_price' => $baseSalePrice,
+                'stock_quantity' => $totalStock,
+                'has_variations' => $hasVariations,
+                'status' => 'published', // Hoặc lấy từ request
+            ]);
 
-            // Xử lý upload Thumbnail (Ảnh đại diện)
-            if ($request->hasFile('thumbnail')) {
-                $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            }
-
-            // Lưu dữ liệu vào bảng products
-            $product = Product::create($data);
-
-            // Xử lý upload Gallery (Nhiều ảnh phụ)
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $index => $file) {
-                    $path = $file->store('products/gallery', 'public');
-                    $product->images()->create([
-                        'image_path' => $path,
-                        'sort_order' => $index,
-                        'is_primary' => $index === 0, // Ảnh đầu tiên làm ảnh chính của gallery
-                    ]);
+            // 4. Xử lý lưu Phân loại hàng hóa (Variations)
+            if ($hasVariations && $request->has('variations')) {
+                
+                // Đồng bộ bảng trung gian product_attributes (Lưu lại việc SP này dùng nhóm thuộc tính nào)
+                if ($request->has('attribute_values')) {
+                    $attributeIds = array_keys($request->attribute_values);
+                    $product->attributes()->sync($attributeIds);
                 }
+
+                foreach ($request->variations as $index => $varData) {
+                    // Tạo SKU riêng cho từng biến thể, nếu admin ko nhập thì nối thêm số (VD: SP01-1)
+                    $varSku = !empty($varData['sku']) ? $varData['sku'] : $product->sku . '-' . ($index + 1);
+
+                    // Tạo Biến thể (Bảng product_variations)
+                    $variation = $product->variations()->create([
+                        'sku' => $varSku,
+                        'price' => $varData['price'],
+                        'sale_price' => $varData['sale_price'] ?? null,
+                        'stock_quantity' => $varData['stock_quantity'],
+                        'is_default' => ($index == 0), // Lấy tổ hợp đầu tiên làm mặc định hiển thị
+                    ]);
+
+                    // Liên kết tổ hợp Giá trị (VD: Gắn 'Cây giống', 'Ghép mắt' vào biến thể này)
+                    if (!empty($varData['attribute_value_ids'])) {
+                        // JS đã gửi về chuỗi "1,4" -> Tách ra thành mảng [1, 4]
+                        $valIds = explode(',', $varData['attribute_value_ids']);
+                        $variation->attributeValues()->sync($valIds);
+                    }
+                }
+            } else {
+                // NƯỚC ĐI CHIẾN THUẬT:
+                // Nếu sản phẩm KHÔNG CÓ phân loại, ta tự động sinh 1 "Biến thể ngầm" (Default Variation).
+                // Nhờ việc này, Giỏ hàng về sau CHỈ CẦN làm việc với bảng `product_variations` mà không lo bị gãy logic.
+                $product->variations()->create([
+                    'sku' => $product->sku . '-DEFAULT',
+                    'price' => $product->price,
+                    'sale_price' => $product->sale_price,
+                    'stock_quantity' => $product->stock_quantity,
+                    'is_default' => true,
+                ]);
             }
 
-            DB::commit(); // Xác nhận lưu thành công
-            return redirect()->route('products.index')->with('success', 'Thêm sản phẩm thành công!');
+            DB::commit();
+            return redirect()->route('products.index')->with('success', 'Đã thêm sản phẩm kèm phân loại thành công!');
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Hoàn tác nếu có lỗi
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage())->withInput();
+            DB::rollBack();
+            return back()->with('error', 'Lỗi hệ thống: ' . $e->getMessage())->withInput();
         }
     }
 
     public function edit(Product $product)
     {
-        $categories = Category::where('is_active', true)->get();
-        $product->load('images'); // Eager load thư viện ảnh
-        return view('admin.products.edit', compact('product', 'categories'));
+        // 1. Tự động load thêm các mối quan hệ (Variations và Attributes)
+        $product->load(['variations.attributeValues', 'attributes']);
+        
+        $categories = Category::all();
+        $attributes = Attribute::with('values')->orderBy('sort_order')->get();
+
+        // 2. Lấy danh sách ID của các thuộc tính đang được tick (để check form)
+        $selectedAttributeIds = $product->attributes->pluck('id')->toArray();
+
+        // 3. Đóng gói danh sách Biến thể cũ thành mảng để truyền xuống JavaScript
+        $existingVariations = $product->variations->map(function ($var) {
+            return [
+                'sku' => $var->sku,
+                'price' => $var->price,
+                'sale_price' => $var->sale_price,
+                'stock_quantity' => $var->stock_quantity,
+                // Lấy mảng ID các giá trị (VD: [1, 4]) và sắp xếp tăng dần để làm Key
+                'attribute_value_ids' => $var->attributeValues->pluck('id')->sort()->values()->toArray(),
+            ];
+        });
+
+        return view('admin.products.edit', compact('product', 'categories', 'attributes', 'selectedAttributeIds', 'existingVariations'));
     }
 
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(Request $request, Product $product)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'sku' => 'required|string|unique:products,sku,' . $product->id, // Bỏ qua trùng lặp với chính nó
+        ]);
+
         try {
             DB::beginTransaction();
 
-            $data = $request->validated();
-            
-            // SỬA LỖI Ở ĐÂY TƯƠNG TỰ HÀM STORE
-            $data['slug'] = $request->filled('slug') ? Str::slug($request->slug) : Str::slug($request->name);
-            
-            $originalSlug = $data['slug'];
-            $counter = 1;
-            while (Product::where('slug', $data['slug'])->where('id', '!=', $product->id)->exists()) {
-                $data['slug'] = $originalSlug . '-' . $counter++;
+            $hasVariations = $request->has('has_variations');
+            $basePrice = $request->price ?? 0;
+            $baseSalePrice = $request->sale_price ?? null;
+            $totalStock = $request->stock_quantity ?? 0;
+
+            if ($hasVariations && $request->has('variations')) {
+                $variations = collect($request->variations);
+                $basePrice = $variations->min('price'); 
+                $totalStock = $variations->sum('stock_quantity');
             }
 
-            $data['is_featured'] = $request->has('is_featured');
+            // 1. Cập nhật thông tin cơ bản
+            $product->update([
+                'name' => $request->name,
+                'category_id' => $request->category_id,
+                'sku' => $request->sku,
+                'origin' => $request->origin,
+                'tree_age' => $request->tree_age,
+                'tree_height_cm' => $request->tree_height_cm,
+                'fruit_harvest_time' => $request->fruit_harvest_time,
+                'planting_season' => $request->planting_season,
+                'short_description' => $request->short_description,
+                'description' => $request->description,
+                'care_instructions' => $request->care_instructions,
+                'price' => $basePrice,
+                'sale_price' => $baseSalePrice,
+                'stock_quantity' => $totalStock,
+                'has_variations' => $hasVariations,
+                'status' => $request->status,
+                'is_featured' => $request->has('is_featured'),
+            ]);
 
-            // Xử lý upload Thumbnail (xoá ảnh cũ nếu có ảnh mới)
-            if ($request->hasFile('thumbnail')) {
-                if ($product->thumbnail) {
-                    Storage::disk('public')->delete($product->thumbnail);
+            // 2. Cập nhật Biến thể
+            if ($hasVariations && $request->has('variations')) {
+                // Đồng bộ bảng nhóm thuộc tính
+                if ($request->has('attribute_values')) {
+                    $product->attributes()->sync(array_keys($request->attribute_values));
                 }
-                $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            }
 
-            $product->update($data);
+                // XÓA CŨ - THÊM MỚI
+                $product->variations()->forceDelete();
 
-            // Xử lý thêm ảnh vào Gallery (không xoá ảnh cũ, chỉ append thêm)
-            if ($request->hasFile('images')) {
-                $maxSort = $product->images()->max('sort_order') ?? -1;
-                foreach ($request->file('images') as $index => $file) {
-                    $path = $file->store('products/gallery', 'public');
-                    $product->images()->create([
-                        'image_path' => $path,
-                        'sort_order' => $maxSort + 1 + $index,
-                        'is_primary' => false,
+                foreach ($request->variations as $index => $varData) {
+                    $varSku = !empty($varData['sku']) ? $varData['sku'] : $product->sku . '-' . ($index + 1);
+
+                    $variation = $product->variations()->create([
+                        'sku' => $varSku,
+                        'price' => $varData['price'],
+                        'sale_price' => $varData['sale_price'] ?? null,
+                        'stock_quantity' => $varData['stock_quantity'],
+                        'is_default' => ($index == 0),
                     ]);
+
+                    if (!empty($varData['attribute_value_ids'])) {
+                        $valIds = explode(',', $varData['attribute_value_ids']);
+                        $variation->attributeValues()->sync($valIds);
+                    }
                 }
+            } else {
+                // Nếu tắt biến thể đi, gỡ bỏ thuộc tính và tạo lại biến thể DEFAULT
+                $product->attributes()->detach();
+                $product->variations()->forceDelete();
+                
+                $product->variations()->create([
+                    'sku' => $product->sku . '-DEFAULT',
+                    'price' => $product->price,
+                    'sale_price' => $product->sale_price,
+                    'stock_quantity' => $product->stock_quantity,
+                    'is_default' => true,
+                ]);
             }
 
             DB::commit();
@@ -132,7 +238,7 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Lỗi hệ thống: ' . $e->getMessage())->withInput();
         }
     }
 
