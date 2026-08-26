@@ -20,8 +20,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('frontend.products.index') }}">Sản phẩm</a>
                     </li>
-                    <li class="nav-item me-3">
-                        <a class="nav-link" href="#">Giỏ hàng <i class="bi bi-cart"></i></a>
+                    <li class="nav-item me-3 mt-1">
+                        <a class="nav-link position-relative text-success fw-bold" href="{{ route('cart.index') }}">
+                            <i class="bi bi-cart3 fs-5"></i> Giỏ hàng
+                            <!-- Nếu có sản phẩm thì hiện chấm đỏ -->
+                            @if(isset($cartTotalQuantity) && $cartTotalQuantity > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light border-2 mt-2">
+                                    {{ $cartTotalQuantity }}
+                                </span>
+                            @endif
+                        </a>
                     </li>
                     
                     <!-- Nếu CHƯA đăng nhập -->

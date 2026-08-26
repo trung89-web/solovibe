@@ -83,9 +83,20 @@
                 <li class="list-group-item"><strong>Tình trạng:</strong> {{ $product->status == 'published' ? 'Còn hàng' : 'Hết hàng' }}</li>
             </ul>
         </div>
-
-        <button class="btn btn-success btn-lg w-100 shadow-sm">Thêm vào giỏ hàng <i class="bi bi-cart-plus"></i></button>
-    </div>
+        <!-- Khung thêm vào giỏ hàng -->
+            <form action="{{ route('cart.add', $product) }}" method="POST" class="mt-4">
+                @csrf
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <label class="fw-bold mb-0">Số lượng:</label>
+                    <input type="number" name="quantity" class="form-control text-center" value="1" min="1" max="{{ $product->stock_quantity }}" style="width: 100px;" required>
+                    <span class="text-muted small">(Còn {{ $product->stock_quantity }} sản phẩm)</span>
+                </div>
+                
+                <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold">
+                    <i class="bi bi-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
+                </button>
+            </form>
+        </div>
 </div>
 
 <!-- Tabs Mô tả & Chăm sóc -->
