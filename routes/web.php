@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Frontend\HomeController;
 
+use App\Http\Controllers\Admin\AttributeController;
 // ==========================================
 // 1. PHẦN FRONTEND (KHÁCH HÀNG)
 // ==========================================
@@ -43,3 +44,5 @@ Route::prefix('gio-hang')->name('cart.')->group(function () {
     Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
 });
+
+Route::resource('attributes', AttributeController::class)->except(['create', 'show', 'edit', 'update']);

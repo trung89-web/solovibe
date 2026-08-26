@@ -34,6 +34,11 @@
                         <i class="bi bi-box-seam me-2"></i> Quản lý Sản phẩm
                     </a>
                 </li>
+                <li class="nav-item mb-2">
+                    <a href="{{ route('attributes.index') }}" class="nav-link text-white {{ request()->routeIs('attributes.*') ? 'bg-success rounded' : '' }}">
+                        <i class="bi bi-tags me-2"></i> Quản lý Thuộc tính
+                    </a>
+                </li>
                 
                 <!-- Nút Về Trang Chủ Khách Hàng -->
                 <li class="nav-item mt-4">
