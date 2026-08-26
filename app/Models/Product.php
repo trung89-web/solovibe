@@ -19,7 +19,7 @@ class Product extends Model
         'care_instructions', 'planting_season', 'fruit_harvest_time', 'tree_age', 
         'tree_height_cm', 'origin', 'price', 'sale_price', 'stock_quantity', 
         'sold_count', 'views_count', 'thumbnail', 'weight_gram', 'status', 
-        'is_featured', 'meta_title', 'meta_description'
+        'is_featured', 'meta_title', 'meta_description', 'has_variations'
     ];
 
     // ==========================================
@@ -32,6 +32,7 @@ class Product extends Model
             'price' => 'decimal:2',
             'sale_price' => 'decimal:2',
             'is_featured' => 'boolean',
+            'has_variations' => 'boolean',
         ];
     }
 
@@ -111,5 +112,15 @@ class Product extends Model
             'best_selling' => $query->orderByDesc('sold_count'),
             default => $query->orderByDesc('created_at'),
         };
+    }
+
+    public function variations(): HasMany
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
+    public function attributes() // Lấy các nhóm thuộc tính đang áp dụng cho SP này
+    {
+        return $this->belongsToMany(Attribute::class, 'product_attributes');
     }
 }
