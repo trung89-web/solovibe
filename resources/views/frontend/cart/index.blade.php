@@ -28,14 +28,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($cart as $id => $item)
+                                @foreach($cart as $cartKey => $item)
                                 <tr>
                                     <td class="ps-3 d-flex align-items-center gap-3">
                                         @php
                                             $imgUrl = str_starts_with($item['thumbnail'], 'http') ? $item['thumbnail'] : asset('storage/' . $item['thumbnail']);
                                         @endphp
-                                        <img src="{{ $imgUrl }}" class="rounded shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ $item['name'] }}">
-                                        <a href="{{ route('frontend.products.show', $item['slug']) }}" class="text-decoration-none text-dark fw-bold">{{ $item['name'] }}</a>
+                                        <img src="{{ $imgUrl }}" class="rounded shadow-sm" style="width: 70px; height: 70px; object-fit: cover;" alt="{{ $item['name'] }}">
+                                        
+                                        <div>
+                                            <a href="{{ route('frontend.products.show', $item['slug']) }}" class="text-decoration-none text-dark fw-bold d-block">{{ $item['name'] }}</a>
+                                            <!-- Hiển thị nhãn Phân loại nếu có -->
+                                            @if(!empty($item['variation_label']))
+                                                <small class="text-muted border rounded px-2 py-1 bg-light d-inline-block mt-1">
+                                                    Phân loại: <strong>{{ $item['variation_label'] }}</strong>
+                                                </small>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @if(isset($item['sale_price']))
@@ -46,8 +55,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <!-- Form cập nhật số lượng -->
-                                        <form action="{{ route('cart.update', $id) }}" method="POST" class="d-flex align-items-center gap-1 m-0">
+                                        <form action="{{ route('cart.update', $cartKey) }}" method="POST" class="d-flex align-items-center gap-1 m-0">
                                             @csrf
                                             @method('PATCH')
                                             <input type="number" name="quantity" class="form-control form-control-sm text-center" value="{{ $item['quantity'] }}" min="1" max="{{ $item['stock_quantity'] }}">
@@ -58,8 +66,7 @@
                                         {{ number_format(($item['sale_price'] ?? $item['price']) * $item['quantity'], 0, ',', '.') }}đ
                                     </td>
                                     <td class="text-center">
-                                        <!-- Form xóa 1 sản phẩm -->
-                                        <form action="{{ route('cart.remove', $id) }}" method="POST" class="m-0">
+                                        <form action="{{ route('cart.remove', $cartKey) }}" method="POST" class="m-0">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Bạn có muốn bỏ sản phẩm này khỏi giỏ?');">
@@ -86,6 +93,7 @@
             </div>
         </div>
 
+        <!-- Khối Tóm tắt (Giữ nguyên của bạn) -->
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 border-top border-success border-4">
                 <div class="card-body p-4">

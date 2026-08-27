@@ -3,42 +3,57 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductVariation; // Bổ sung
 use Illuminate\Support\Facades\Session;
 
 class CartService
 {
     private const CART_KEY = 'cart';
 
-    // Lấy giỏ hàng từ Session
     public function getSessionCart(): array
     {
         return Session::get(self::CART_KEY, []);
     }
 
-    // Lưu giỏ hàng vào Session
     private function saveToSession(array $cart): void
     {
         Session::put(self::CART_KEY, $cart);
     }
 
-    // Thêm sản phẩm
-    public function add(Product $product, int $quantity): array
+    // Nâng cấp hàm Add: Nhận thêm biến $variation (Có thể null)
+    public function add(Product $product, int $quantity, ?ProductVariation $variation = null): array
     {
         $cart = $this->getSessionCart();
-        $productId = $product->id;
+        
+        // Tạo Cart Key duy nhất (VD: V_12 nếu là Biến thể, P_5 nếu là Sản phẩm thường)
+        $cartKey = $variation ? 'V_' . $variation->id : 'P_' . $product->id;
 
-        if (isset($cart[$productId])) {
-            $newQuantity = $cart[$productId]['quantity'] + $quantity;
-            $cart[$productId]['quantity'] = min($newQuantity, $product->stock_quantity); // Không vượt quá tồn kho
+        // Quyết định Giá và Tồn kho dựa trên việc mua SP thường hay mua Biến thể
+        $price = $variation ? $variation->price : $product->price;
+        $salePrice = $variation ? $variation->sale_price : $product->sale_price;
+        $stockLimit = $variation ? $variation->stock_quantity : $product->stock_quantity;
+        
+        // Lấy tên các thuộc tính ghép lại (VD: "Cây giống - Ghép mắt")
+        $variationLabel = '';
+        if ($variation && $variation->attributeValues->count() > 0) {
+            $variationLabel = $variation->attributeValues->pluck('value')->implode(' - ');
+        }
+
+        if (isset($cart[$cartKey])) {
+            $newQuantity = $cart[$cartKey]['quantity'] + $quantity;
+            $cart[$cartKey]['quantity'] = min($newQuantity, $stockLimit);
         } else {
-            $cart[$productId] = [
+            $cart[$cartKey] = [
+                'product_id' => $product->id,
+                'variation_id' => $variation ? $variation->id : null,
                 'name' => $product->name,
+                'variation_label' => $variationLabel, // Thêm nhãn Biến thể
                 'slug' => $product->slug,
                 'thumbnail' => $product->thumbnail,
-                'price' => $product->price,
-                'sale_price' => $product->sale_price,
-                'quantity' => min($quantity, $product->stock_quantity),
-                'stock_quantity' => $product->stock_quantity,
+                'price' => $price,
+                'sale_price' => $salePrice,
+                'quantity' => min($quantity, $stockLimit),
+                'stock_quantity' => $stockLimit,
             ];
         }
 
@@ -46,45 +61,41 @@ class CartService
         return ['status' => 'success', 'message' => 'Đã thêm vào giỏ hàng!'];
     }
 
-    // Cập nhật số lượng
-    public function update(int $productId, int $quantity): void
+    // Đổi kiểu dữ liệu của ID truyền vào thành string ($cartKey thay vì int $productId)
+    public function update(string $cartKey, int $quantity): void
     {
         $cart = $this->getSessionCart();
 
-        if (isset($cart[$productId])) {
+        if (isset($cart[$cartKey])) {
             if ($quantity <= 0) {
-                unset($cart[$productId]);
+                unset($cart[$cartKey]);
             } else {
-                $cart[$productId]['quantity'] = min($quantity, $cart[$productId]['stock_quantity']);
+                $cart[$cartKey]['quantity'] = min($quantity, $cart[$cartKey]['stock_quantity']);
             }
             $this->saveToSession($cart);
         }
     }
 
-    // Xoá 1 sản phẩm
-    public function remove(int $productId): void
+    public function remove(string $cartKey): void
     {
         $cart = $this->getSessionCart();
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
+        if (isset($cart[$cartKey])) {
+            unset($cart[$cartKey]);
             $this->saveToSession($cart);
         }
     }
 
-    // Xoá toàn bộ
     public function clear(): void
     {
         Session::forget(self::CART_KEY);
     }
 
-    // Tính tổng số lượng (cho Badge Navbar)
     public function getTotalQuantity(): int
     {
         $cart = $this->getSessionCart();
         return array_sum(array_column($cart, 'quantity'));
     }
 
-    // Tính tổng tiền (Subtotal)
     public function getSubtotal(): float
     {
         $cart = $this->getSessionCart();
