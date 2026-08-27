@@ -14,8 +14,9 @@
         
         <!-- SIDEBAR -->
         <div class="bg-dark text-white p-3 shadow" style="width: 260px;">
-            <h4 class="text-center text-success fw-bold mb-4 mt-2">🌱 Admin Panel</h4>
-            
+            <a href="{{ route('home') }}" class="text-decoration-none">
+                <h4 class="text-center text-success fw-bold mb-4 mt-2">🌱 Admin Panel</h4>
+            </a>            
             <!-- Thông tin User -->
             <div class="mb-4 pb-3 border-bottom border-secondary text-center">
                 <div class="fw-bold fs-5">{{ Auth::user()->name }}</div>
@@ -37,13 +38,6 @@
                 <li class="nav-item mb-2">
                     <a href="{{ route('attributes.index') }}" class="nav-link text-white {{ request()->routeIs('attributes.*') ? 'bg-success rounded' : '' }}">
                         <i class="bi bi-tags me-2"></i> Quản lý Thuộc tính
-                    </a>
-                </li>
-                
-                <!-- Nút Về Trang Chủ Khách Hàng -->
-                <li class="nav-item mt-4">
-                    <a href="{{ route('frontend.products.index') }}" class="nav-link text-info">
-                        <i class="bi bi-house-door me-2"></i> Xem trang Frontend
                     </a>
                 </li>
 

@@ -42,25 +42,38 @@ class ProductController extends Controller
     /**
      * Hiển thị chi tiết sản phẩm
      */
-    public function show(Product $product)
+    public function show(string $slug)
     {
-        // Kiểm tra bảo mật: Chỉ cho phép xem nếu sản phẩm đang được publish
-        abort_if($product->status !== 'published', 404);
+        // 1. Tải Sản phẩm kèm theo Biến thể và Nhóm thuộc tính
+        $product = \App\Models\Product::with([
+            'images', 
+            'category', 
+            'attributes.values', 
+            'variations.attributeValues'
+        ])->where('slug', $slug)->firstOrFail();
 
-        // Tăng lượt xem lên 1
+        // 2. Tăng lượt xem
         $product->increment('views_count');
-        
-        // Eager load các quan hệ cần thiết
-        $product->load(['images', 'category']);
 
-        // Lấy 4 sản phẩm liên quan (cùng danh mục, trừ sản phẩm hiện tại)
-        $relatedProducts = Product::published()
-            ->where('category_id', $product->category_id)
+        // 3. Lấy sản phẩm liên quan
+        $relatedProducts = \App\Models\Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->inRandomOrder()
+            ->published()
             ->limit(4)
             ->get();
 
-        return view('frontend.products.show', compact('product', 'relatedProducts'));
+        // 4. Đóng gói dữ liệu Biến thể ra JSON để gửi xuống JavaScript
+        $variationsJson = $product->variations->map(function ($var) {
+            return [
+                'id' => $var->id,
+                'price' => $var->price,
+                'sale_price' => $var->sale_price,
+                'stock_quantity' => $var->stock_quantity,
+                // Lấy mảng ID các giá trị và sắp xếp tăng dần để dễ so sánh ở JS
+                'attribute_value_ids' => $var->attributeValues->pluck('id')->sort()->values()->toArray(),
+            ];
+        });
+
+        return view('frontend.products.show', compact('product', 'relatedProducts', 'variationsJson'));
     }
 }
