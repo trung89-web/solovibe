@@ -1,7 +1,6 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-<!-- Nút quay lại -->
 <div class="mb-4">
     <a href="{{ route('frontend.products.index') }}" class="text-decoration-none text-success">
         <i class="bi bi-arrow-left"></i> Quay lại danh sách
@@ -14,10 +13,8 @@
         <div class="card shadow-sm border-0 mb-3">
             @if($product->thumbnail)
                 @php
-                    // Kiểm tra nếu là link http (online) thì giữ nguyên, ngược lại thì gọi từ storage
                     $mainImgUrl = str_starts_with($product->thumbnail, 'http') ? $product->thumbnail : asset('storage/' . $product->thumbnail);
                 @endphp
-                <!-- Thêm id="mainProductImage" vào ảnh lớn -->
                 <img id="mainProductImage" src="{{ $mainImgUrl }}" class="card-img-top rounded" alt="{{ $product->name }}" style="max-height: 400px; object-fit: cover;">
             @else
                 <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 400px;">
@@ -29,13 +26,9 @@
         <!-- Gallery ảnh phụ -->
         @if($product->thumbnail || ($product->images && $product->images->count() > 0))
             <div class="d-flex overflow-auto gap-2 pb-2">
-                
-                <!-- Hiển thị lại ảnh đại diện làm thumbnail đầu tiên để click quay lại -->
                 @if($product->thumbnail)
                     <img src="{{ $mainImgUrl }}" class="img-thumbnail shadow-sm border-success" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" alt="Thumbnail" onclick="changeImage(this.src)" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
                 @endif
-
-                <!-- Các ảnh phụ trong Gallery -->
                 @if($product->images && $product->images->count() > 0)
                     @foreach($product->images as $img)
                         @php
@@ -60,12 +53,11 @@
             @endif
         </div>
 
-        <!-- Khối Giá bán (Hỗ trợ thay đổi động theo biến thể) -->
         <div class="mb-4 p-3 bg-white rounded shadow-sm border">
             @if($product->has_variations)
                 <!-- Nếu có biến thể, hiển thị khoảng giá ban đầu -->
                 <div id="price_container">
-                    <span class="text-danger fw-bold fs-3" id="display_price">
+                    <span class="text-danger fw-bold display-6" id="display_price">
                         {{ number_format($product->variations->min('price'), 0, ',', '.') }}đ - {{ number_format($product->variations->max('price'), 0, ',', '.') }}đ
                     </span>
                     <span class="text-muted text-decoration-line-through fs-5 ms-2 d-none" id="display_sale_price"></span>
@@ -85,7 +77,6 @@
 
         <p class="text-muted fs-5">{{ $product->short_description }}</p>
 
-        <!-- Thuộc tính đặc thù -->
         <div class="card border-0 shadow-sm mb-4">
             <ul class="list-group list-group-flush">
                 @if($product->origin) <li class="list-group-item"><strong>Xuất xứ:</strong> {{ $product->origin }}</li> @endif
@@ -96,32 +87,38 @@
             </ul>
         </div>
 
-        <!-- KHU VỰC CHỌN PHÂN LOẠI & THÊM VÀO GIỎ HÀNG -->
+        <!-- KHU VỰC CHỌN LOẠI CÂY (GỘP SẴN) -->
             <form action="{{ route('cart.add', $product) }}" method="POST" class="mt-4" id="add-to-cart-form">
-            @csrf
+                @csrf
             
-            <!-- Input ẩn chứa ID của biến thể được chọn (quan trọng cho giỏ hàng) -->
             <input type="hidden" name="variation_id" id="selected_variation_id" value="{{ !$product->has_variations ? $product->variations->first()->id ?? '' : '' }}">
             <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-            <!-- Hiển thị các nhóm phân loại (Nếu sản phẩm có bật biến thể) -->
-            @if($product->has_variations && $product->attributes->count() > 0)
+            @if($product->has_variations && $product->variations->count() > 0)
                 <div class="product-attributes mb-4 p-3 bg-light rounded border">
-                    <label class="fw-bold mb-3 text-dark d-block">Phân loại sản phẩm:</label>
-                    @foreach($product->attributes as $attribute)
-                        <div class="attribute-group mb-3" data-attr-id="{{ $attribute->id }}">
-                            <span class="text-muted small fw-bold d-block mb-2">{{ $attribute->name }}:</span>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($attribute->values as $val)
-                                    <input type="radio" class="btn-check variation-radio" 
-                                        name="attribute_{{ $attribute->id }}" 
-                                        id="attr_val_{{ $val->id }}" 
-                                        value="{{ $val->id }}" autocomplete="off">
-                                    <label class="btn btn-outline-success btn-sm px-3 py-2" for="attr_val_{{ $val->id }}">{{ $val->value }}</label>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
+                    <label class="fw-bold mb-3 text-dark d-block">Chọn loại sản phẩm:</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($product->variations as $var)
+                            @php
+                                if($var->sku == $product->sku . '-DEFAULT') continue;
+                                $label = $var->attributeValues->pluck('value')->implode(' - ');
+                                if(empty($label)) continue;
+                                $isOutOfStock = $var->stock_quantity <= 0;
+                            @endphp
+
+                            <!-- Từng loại biến thể gộp thành 1 nút -->
+                            <input type="radio" class="btn-check variation-radio" 
+                                name="variation_id_radio" 
+                                id="var_{{ $var->id }}" 
+                                value="{{ $var->id }}" 
+                                {{ $isOutOfStock ? 'disabled' : '' }}
+                                autocomplete="off">
+                            <label class="btn {{ $isOutOfStock ? 'btn-outline-secondary opacity-50' : 'btn-outline-success' }} btn-sm px-3 py-2" for="var_{{ $var->id }}">
+                                {{ $label }}
+                                @if($isOutOfStock) <small class="d-block">(Hết hàng)</small> @endif
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
@@ -129,14 +126,13 @@
                 <label class="fw-bold mb-0">Số lượng:</label>
                 <input type="number" name="quantity" id="quantity_input" class="form-control text-center" value="1" min="1" max="{{ $product->has_variations ? 1 : $product->stock_quantity }}" style="width: 100px;" required>
                 <span class="text-muted small">
-                    (Kho: <span id="display_stock" class="fw-bold text-dark">{{ $product->has_variations ? '---' : $product->stock_quantity }}</span> sản phẩm)
+                    (Kho: <span id="display_stock" class="fw-bold text-dark">{{ $product->has_variations ? '---' : $product->stock_quantity }}</span>)
                 </span>
             </div>
-
-            <!-- Cảnh báo chọn biến thể -->
+            
             <div class="mb-3">
                 <span id="variation-warning" class="text-danger small fw-bold {{ $product->has_variations ? '' : 'd-none' }}">
-                    * Vui lòng chọn đầy đủ phân loại để mua hàng.
+                    * Vui lòng chọn loại sản phẩm để mua hàng.
                 </span>
             </div>
             
@@ -153,21 +149,21 @@
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
                 <ul class="nav nav-tabs" id="productTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold text-success" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">Mô tả chi tiết</button>
+                    <li class="nav-item">
+                        <button class="nav-link active fw-bold text-success" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button">Mô tả chi tiết</button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-success" id="care-tab" data-bs-toggle="tab" data-bs-target="#care" type="button" role="tab">Hướng dẫn chăm sóc</button>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold text-success" id="care-tab" data-bs-toggle="tab" data-bs-target="#care" type="button">Hướng dẫn chăm sóc</button>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content" id="productTabsContent">
-                    <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                        {!! nl2br(e($product->description)) ?: 'Đang cập nhật...' !!}
+                    <div class="tab-pane fade show active" id="desc">
+                        {!! $product->description ?: 'Đang cập nhật...' !!}
                     </div>
-                    <div class="tab-pane fade" id="care" role="tabpanel">
-                        {!! nl2br(e($product->care_instructions)) ?: 'Đang cập nhật...' !!}
+                    <div class="tab-pane fade" id="care">
+                        {!! $product->care_instructions ?: 'Đang cập nhật...' !!}
                     </div>
                 </div>
             </div>
@@ -189,9 +185,7 @@
     </div>
 @endif
 
-<!-- JAVASCRIPT XỬ LÝ ĐỔI ẢNH VÀ BIẾN THỂ -->
 <script>
-    // Hàm đổi ảnh chính từ Gallery
     function changeImage(newSrc) {
         document.getElementById('mainProductImage').src = newSrc;
     }
@@ -200,11 +194,9 @@
         const hasVariations = {{ $product->has_variations ? 'true' : 'false' }};
         const variations = @json($variationsJson ?? []);
         
-        if (!hasVariations) return; // Nếu không có biến thể thì dừng script tại đây
+        if (!hasVariations) return;
 
         const radios = document.querySelectorAll('.variation-radio');
-        const totalGroups = document.querySelectorAll('.attribute-group').length;
-        
         const priceEl = document.getElementById('display_price');
         const salePriceEl = document.getElementById('display_sale_price');
         const stockEl = document.getElementById('display_stock');
@@ -216,57 +208,30 @@
         const formatMoney = (amount) => new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 
         radios.forEach(radio => {
-            radio.addEventListener('change', checkVariations);
-        });
+            radio.addEventListener('change', function() {
+                const selectedId = parseInt(this.value);
+                const matchedVar = variations.find(v => v.id === selectedId);
 
-        function checkVariations() {
-            const checked = Array.from(document.querySelectorAll('.variation-radio:checked')).map(cb => parseInt(cb.value));
-            
-            // Nếu chưa chọn đủ nhóm phân loại
-            if (checked.length < totalGroups) {
-                btnAddCart.disabled = true;
-                warningText.innerText = "* Vui lòng chọn đầy đủ phân loại để mua hàng.";
-                warningText.classList.remove('d-none');
-                return;
-            }
+                if (matchedVar) {
+                    if (matchedVar.sale_price) {
+                        priceEl.innerText = formatMoney(matchedVar.sale_price);
+                        salePriceEl.innerText = formatMoney(matchedVar.price);
+                        salePriceEl.classList.remove('d-none');
+                    } else {
+                        priceEl.innerText = formatMoney(matchedVar.price);
+                        salePriceEl.classList.add('d-none');
+                    }
 
-            // Sắp xếp các ID tăng dần để khớp với cấu trúc Key trong JSON
-            checked.sort((a, b) => a - b);
-            const selectedKey = checked.join('_');
+                    stockEl.innerText = matchedVar.stock_quantity;
+                    varIdInput.value = matchedVar.id;
+                    qtyInput.max = matchedVar.stock_quantity;
+                    qtyInput.value = 1;
 
-            const matchedVar = variations.find(v => v.attribute_value_ids.join('_') === selectedKey);
-
-            if (matchedVar) {
-                // Đổi giá tiền
-                if (matchedVar.sale_price) {
-                    priceEl.innerText = formatMoney(matchedVar.sale_price);
-                    salePriceEl.innerText = formatMoney(matchedVar.price);
-                    salePriceEl.classList.remove('d-none');
-                } else {
-                    priceEl.innerText = formatMoney(matchedVar.price);
-                    salePriceEl.classList.add('d-none');
-                }
-
-                // Cập nhật Tồn kho và ID ẩn vào form giỏ hàng
-                stockEl.innerText = matchedVar.stock_quantity;
-                varIdInput.value = matchedVar.id;
-                qtyInput.max = matchedVar.stock_quantity;
-
-                if (matchedVar.stock_quantity > 0) {
                     btnAddCart.disabled = false;
                     warningText.classList.add('d-none');
-                    qtyInput.value = 1;
-                } else {
-                    btnAddCart.disabled = true;
-                    warningText.innerText = "* Phân loại này hiện đang tạm hết hàng.";
-                    warningText.classList.remove('d-none');
                 }
-            } else {
-                btnAddCart.disabled = true;
-                warningText.innerText = "* Tổ hợp phân loại này hiện không có sẵn.";
-                warningText.classList.remove('d-none');
-            }
-        }
+            });
+        });
     });
 </script>
 @endsection

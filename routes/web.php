@@ -43,6 +43,7 @@ Route::prefix('gio-hang')->name('cart.')->group(function () {
     Route::patch('/update/{productId}', [CartController::class, 'update'])->name('update');
     Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+    Route::post('/remove-multiple', [CartController::class, 'removeMultiple'])->name('removeMultiple');
 });
 
 Route::resource('attributes', AttributeController::class)->except(['create', 'show', 'edit', 'update']);

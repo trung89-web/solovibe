@@ -106,4 +106,15 @@ class CartService
         }
         return $total;
     }
+
+    public function removeMultiple(array $cartKeys): void
+    {
+        $cart = $this->getSessionCart();
+        foreach ($cartKeys as $key) {
+            if (isset($cart[$key])) {
+                unset($cart[$key]);
+            }
+        }
+        $this->saveToSession($cart);
+    }
 }

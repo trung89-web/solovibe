@@ -52,18 +52,63 @@ class CartController extends Controller
         ]);
 
         $this->cartService->update($cartKey, $request->quantity);
+
+        // Nếu là request từ JS (Fetch/AJAX), trả về JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật thành công',
+                'cartTotalQuantity' => $this->cartService->getTotalQuantity()
+            ]);
+        }
         return back()->with('success', 'Đã cập nhật giỏ hàng!');
     }
 
-    public function remove($cartKey)
+    public function remove(Request $request, $cartKey)
     {
         $this->cartService->remove($cartKey);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa sản phẩm',
+                'cartTotalQuantity' => $this->cartService->getTotalQuantity()
+            ]);
+        }
         return back()->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng!');
     }
 
-    public function clear()
+    public function clear(Request $request)
     {
         $this->cartService->clear();
+
+        // Nếu gọi qua AJAX (Fetch API) từ nút xóa toàn bộ
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa toàn bộ giỏ hàng'
+            ]);
+        }
+
+        // Fallback cho trường hợp load lại form truyền thống
         return back()->with('success', 'Đã xóa toàn bộ giỏ hàng!');
+    }
+
+    public function removeMultiple(Request $request)
+    {
+        $request->validate([
+            'keys' => 'required|array'
+        ]);
+
+        $this->cartService->removeMultiple($request->keys);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa các sản phẩm được chọn',
+                'cartTotalQuantity' => $this->cartService->getTotalQuantity()
+            ]);
+        }
+        return back()->with('success', 'Đã xóa các sản phẩm được chọn!');
     }
 }
