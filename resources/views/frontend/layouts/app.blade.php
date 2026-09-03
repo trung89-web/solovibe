@@ -51,6 +51,12 @@
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('profile.index') }}">
+                                        <i class="bi bi-person me-2"></i> Trang cá nhân
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 
                                 <!-- Nút Vào Quản Trị (Chỉ hiện nếu là Admin) -->
                                 @if(auth()->user()->hasAnyRole(['Super Admin', 'Content Staff']))

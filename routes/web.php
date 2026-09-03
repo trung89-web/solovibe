@@ -46,4 +46,30 @@ Route::prefix('gio-hang')->name('cart.')->group(function () {
     Route::post('/remove-multiple', [CartController::class, 'removeMultiple'])->name('removeMultiple');
 });
 
+// ==========================================
+// CHECKOUT ROUTES
+// ==========================================
+use App\Http\Controllers\Frontend\CheckoutController;
+
+Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
+    Route::post('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/process', [CheckoutController::class, 'process'])->name('process');
+    Route::get('/success/{orderCode?}', [CheckoutController::class, 'success'])->name('success');
+    Route::post('/calculate-shipping', [CheckoutController::class, 'calculateShippingFee'])->name('calculateShipping');
+});
+
 Route::resource('attributes', AttributeController::class)->except(['create', 'show', 'edit', 'update']);
+
+// ==========================================
+// PROFILE ROUTES
+// ==========================================
+use App\Http\Controllers\Frontend\ProfileController;
+
+Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', [ProfileController::class, 'index'])->name('index');
+    Route::put('/update', [ProfileController::class, 'update'])->name('update');
+    Route::post('/address', [ProfileController::class, 'storeAddress'])->name('address.store');
+    Route::put('/address/{id}', [ProfileController::class, 'updateAddress'])->name('address.update');
+    Route::delete('/address/{id}', [ProfileController::class, 'destroyAddress'])->name('address.destroy');
+    Route::put('/address/{id}/default', [ProfileController::class, 'setDefaultAddress'])->name('address.default');
+});
