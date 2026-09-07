@@ -179,11 +179,17 @@
                             <tfoot class="table-light">
                                 <tr>
                                     <td colspan="3" class="text-end fw-semibold py-2">Tạm tính:</td>
-                                    <td class="text-end pe-4 py-2">{{ number_format($order->total_amount, 0, ',', '.') }} ₫</td>
+                                    <td class="text-end pe-4 py-2">{{ number_format($order->total_amount - ($order->shipping_fee ?? 0), 0, ',', '.') }} ₫</td>
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-end fw-semibold py-2">Phí vận chuyển:</td>
-                                    <td class="text-end pe-4 py-2 text-success fw-bold">Miễn phí</td>
+                                    <td class="text-end pe-4 py-2 text-success fw-bold">
+                                        @if(($order->shipping_fee ?? 0) > 0)
+                                            {{ number_format($order->shipping_fee, 0, ',', '.') }} ₫
+                                        @else
+                                            Miễn phí
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold fs-5 text-dark py-3">Tổng thanh toán:</td>

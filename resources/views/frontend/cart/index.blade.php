@@ -13,7 +13,7 @@
     </div>
 @else
     <!-- Đổi Form này trỏ sang Checkout -->
-    <form action="/checkout" method="POST" id="cart-form">
+    <form action="{{ route('checkout.index') }}" method="POST" id="cart-form">
         @csrf
         <div class="row">
             <div class="col-lg-8 mb-4">

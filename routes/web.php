@@ -52,7 +52,7 @@ Route::prefix('gio-hang')->name('cart.')->group(function () {
 use App\Http\Controllers\Frontend\CheckoutController;
 
 Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
-    Route::post('/', [CheckoutController::class, 'index'])->name('index');
+    Route::match(['get', 'post'], '/', [CheckoutController::class, 'index'])->name('index');
     Route::post('/process', [CheckoutController::class, 'process'])->name('process');
     Route::get('/success/{orderCode?}', [CheckoutController::class, 'success'])->name('success');
     Route::post('/calculate-shipping', [CheckoutController::class, 'calculateShippingFee'])->name('calculateShipping');

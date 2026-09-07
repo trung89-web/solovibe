@@ -18,6 +18,7 @@ class Order extends Model
         'district',
         'ward',
         'specific_address',
+        'shipping_fee',
         'total_amount',
         'payment_method',
         'payment_status',

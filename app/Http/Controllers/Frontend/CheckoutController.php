@@ -23,6 +23,16 @@ class CheckoutController extends Controller
         $selectedKeys = $request->input('selected_items', []);
         
         if (empty($selectedKeys)) {
+            $checkoutItems = session('checkout_items');
+            $checkoutTotal = session('checkout_total');
+
+            if (!empty($checkoutItems) && is_array($checkoutItems)) {
+                $selected_items = $checkoutItems;
+                $total = $checkoutTotal ?? 0;
+                $addresses = Auth::check() ? Auth::user()->addresses()->orderBy('is_default', 'desc')->get() : collect();
+                return view('frontend.checkout.index', compact('selected_items', 'total', 'addresses'));
+            }
+
             return redirect()->route('cart.index')->with('error', 'Vui lòng chọn sản phẩm trước khi thanh toán!');
         }
 
@@ -85,7 +95,7 @@ class CheckoutController extends Controller
             DB::beginTransaction();
 
             $verifiedItems = [];
-            $calculatedTotal = 0;
+            $itemsTotal = 0;
 
             // 1. Kiểm tra toàn vẹn dữ liệu từng sản phẩm (Tồn tại, Giá thực tế, Số lượng tồn kho)
             foreach ($checkoutItems as $key => $item) {
@@ -116,7 +126,7 @@ class CheckoutController extends Controller
 
                     $variationLabel = $variation->attributeValues->pluck('value')->implode(' - ');
                     $subtotal = $unitPrice * $quantity;
-                    $calculatedTotal += $subtotal;
+                    $itemsTotal += $subtotal;
 
                     $verifiedItems[] = [
                         'product_id' => $variation->product_id,
@@ -145,7 +155,7 @@ class CheckoutController extends Controller
                         : (float)$product->price;
 
                     $subtotal = $unitPrice * $quantity;
-                    $calculatedTotal += $subtotal;
+                    $itemsTotal += $subtotal;
 
                     $verifiedItems[] = [
                         'product_id' => $product->id,
@@ -162,7 +172,6 @@ class CheckoutController extends Controller
             }
 
             $shippingFee = (float)$request->input('shipping_fee', 0);
-            $calculatedTotal += $shippingFee;
 
             // 2. Lưu địa chỉ nếu người dùng chọn lưu
             if ($request->boolean('save_address') && Auth::check()) {
@@ -201,8 +210,8 @@ class CheckoutController extends Controller
                 'ward' => $request->ward,
                 'specific_address' => $request->specific_address,
                 'payment_method' => $request->payment_method,
-                'shipping_fee' => $shippingFee,
-                'total_amount' => $calculatedTotal,
+                'shipping_fee' => $request->input('shipping_fee', 0),
+                'total_amount' => $itemsTotal + $request->input('shipping_fee', 0),
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
                 'note' => $request->note,
