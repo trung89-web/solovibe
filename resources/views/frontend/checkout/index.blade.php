@@ -196,7 +196,7 @@
                         </div>
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Phí vận chuyển:</span>
-                            <span class="text-success fw-semibold" id="shipping-fee-display">Miễn phí</span>
+                            <span class="text-secondary fw-semibold" id="shipping-fee-display">Chưa tính</span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-4 fs-5">
@@ -206,8 +206,8 @@
                         
                         <input type="hidden" name="shipping_fee" id="shipping_fee_input" value="0">
                         
-                        <button type="submit" class="btn btn-danger btn-lg w-100 py-3 fw-bold shadow-sm">
-                            <i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG
+                        <button type="submit" id="btn-submit-order" class="btn btn-danger btn-lg w-100 py-3 fw-bold shadow-sm" disabled>
+                            <i class="bi bi-check-circle-fill me-2"></i><span id="btn-submit-text">XÁC NHẬN ĐẶT HÀNG</span>
                         </button>
                     </div>
                 </div>
@@ -291,6 +291,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             provinceSelect.addEventListener('change', function () {
                 populateDistricts(this.value);
+                const submitBtn = document.getElementById('btn-submit-order');
+                if (submitBtn) submitBtn.disabled = true;
+                const shippingDisplay = document.getElementById('shipping-fee-display');
+                if (shippingDisplay) {
+                    shippingDisplay.textContent = 'Chưa tính';
+                    shippingDisplay.className = 'text-secondary fw-semibold';
+                }
             });
 
             districtSelect.addEventListener('change', function () {
@@ -314,12 +321,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const district = districtSelect.value;
         const ward = wardSelect.value;
         const subtotal = {{ $total }};
+        const submitBtn = document.getElementById('btn-submit-order');
         
-        if (!province || !district || !ward) return;
+        if (!province || !district || !ward) {
+            if (submitBtn) submitBtn.disabled = true;
+            return;
+        }
 
         const shippingDisplay = document.getElementById('shipping-fee-display');
         const totalDisplay = document.getElementById('order-total-display');
         const shippingInput = document.getElementById('shipping_fee_input');
+
+        // Disable nút Submit và đổi text trước khi gọi AJAX/fetch
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Đang tính phí...';
+        }
 
         shippingDisplay.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Đang tính phí...';
         
@@ -336,23 +353,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 subtotal: subtotal
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
                 shippingDisplay.textContent = data.formatted_shipping_fee;
-                shippingDisplay.classList.remove('text-success');
+                shippingDisplay.classList.remove('text-secondary', 'text-success');
                 shippingDisplay.classList.add('text-danger');
                 
                 totalDisplay.textContent = data.formatted_total;
                 shippingInput.value = data.shipping_fee;
+
+                // Gỡ thuộc tính disabled và phục hồi text
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
+                }
+            } else {
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
+                }
+                alert('Không thể tính phí vận chuyển, vui lòng thử lại');
             }
         })
         .catch(err => {
             console.error('Lỗi tính phí ship', err);
-            shippingDisplay.textContent = '35.000 đ (Mặc định)';
-            shippingInput.value = 35000;
-            const fallbackTotal = subtotal + 35000;
-            totalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(fallbackTotal) + ' đ';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
+            }
+            shippingDisplay.textContent = 'Lỗi tính phí';
+            shippingDisplay.className = 'text-danger fw-semibold';
+            alert('Không thể tính phí vận chuyển, vui lòng thử lại');
         });
     }
 
@@ -370,6 +407,17 @@ document.addEventListener('DOMContentLoaded', function () {
             provinceSelect.value = '';
             districtSelect.innerHTML = '<option value="" disabled selected>Chọn Quận/Huyện</option>';
             wardSelect.innerHTML = '<option value="" disabled selected>Chọn Phường/Xã</option>';
+
+            const submitBtn = document.getElementById('btn-submit-order');
+            if (submitBtn) submitBtn.disabled = true;
+
+            const shippingDisplay = document.getElementById('shipping-fee-display');
+            if (shippingDisplay) {
+                shippingDisplay.textContent = 'Chưa tính';
+                shippingDisplay.className = 'text-secondary fw-semibold';
+            }
+            const shippingInput = document.getElementById('shipping_fee_input');
+            if (shippingInput) shippingInput.value = '0';
         } else {
             if (saveAddressContainer) saveAddressContainer.style.display = 'none';
             if (addressFormTitle) addressFormTitle.innerText = 'Thông tin chi tiết người nhận (Từ sổ địa chỉ)';

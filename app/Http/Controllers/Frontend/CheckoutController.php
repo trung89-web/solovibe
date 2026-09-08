@@ -92,6 +92,14 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Không có sản phẩm nào để thanh toán hoặc phiên mua hàng đã hết hạn.');
         }
 
+        // Chốt chặn kiểm tra phí vận chuyển
+        $shippingFeeInput = $request->input('shipping_fee');
+        if (!empty($checkoutItems) && ($shippingFeeInput === null || (float)$shippingFeeInput <= 0)) {
+            return redirect()->back()
+                ->with('error', 'Hệ thống chưa tính được phí vận chuyển. Vui lòng đợi trong giây lát và thử lại.')
+                ->withInput();
+        }
+
         try {
             DB::beginTransaction();
 
