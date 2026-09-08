@@ -250,6 +250,15 @@
                                                         <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#orderModal-{{ $order->id }}">
                                                             <i class="bi bi-eye me-1"></i>Chi tiết
                                                         </button>
+                                                        @if($order->order_status === 'pending')
+                                                            <form action="{{ route('profile.orders.cancel', $order->id) }}" method="POST" class="d-inline-block mt-1">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                                                                    Hủy
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -404,7 +413,18 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer">
+                                                <div class="modal-footer d-flex justify-content-between">
+                                                    <div>
+                                                        @if($order->order_status === 'pending')
+                                                            <form action="{{ route('profile.orders.cancel', $order->id) }}" method="POST" class="d-inline">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                                                                    <i class="bi bi-x-circle me-1"></i> Hủy đơn hàng
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                                 </div>
                                             </div>

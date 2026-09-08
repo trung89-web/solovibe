@@ -72,4 +72,5 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::put('/address/{id}', [ProfileController::class, 'updateAddress'])->name('address.update');
     Route::delete('/address/{id}', [ProfileController::class, 'destroyAddress'])->name('address.destroy');
     Route::put('/address/{id}/default', [ProfileController::class, 'setDefaultAddress'])->name('address.default');
+    Route::put('/orders/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('orders.cancel');
 });
