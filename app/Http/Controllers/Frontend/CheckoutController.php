@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\SendOrderEmailJob;
 
 class CheckoutController extends Controller
 {
@@ -249,6 +250,9 @@ class CheckoutController extends Controller
             session()->forget(['checkout_items', 'checkout_total']);
 
             DB::commit();
+
+            // Gửi email xác nhận đơn hàng ngầm qua Queue
+            SendOrderEmailJob::dispatch($order);
 
             return redirect()->route('checkout.success', ['orderCode' => $order->order_code])
                 ->with('success', 'Chúc mừng bạn đã đặt hàng thành công!');
