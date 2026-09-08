@@ -36,6 +36,11 @@
                     </a>
                 </li>
                 <li class="nav-item mb-2">
+                    <a href="{{ route('orders.index') }}" class="nav-link text-white {{ request()->routeIs('orders.*') ? 'bg-success rounded' : '' }}">
+                        <i class="bi bi-cart-check me-2"></i> Quản lý Đơn hàng
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
                     <a href="{{ route('attributes.index') }}" class="nav-link text-white {{ request()->routeIs('attributes.*') ? 'bg-success rounded' : '' }}">
                         <i class="bi bi-tags me-2"></i> Quản lý Thuộc tính
                     </a>
