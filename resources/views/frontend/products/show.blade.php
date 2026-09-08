@@ -136,9 +136,18 @@
                 </span>
             </div>
             
-            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold" id="btn-add-cart" {{ $product->has_variations ? 'disabled' : '' }}>
-                <i class="bi bi-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
-            </button>
+            <div class="row g-2">
+                <div class="col-sm-6">
+                    <button type="submit" class="btn btn-outline-success btn-lg w-100 shadow-sm fw-bold" id="btn-add-cart" {{ $product->has_variations ? 'disabled' : '' }}>
+                        <i class="bi bi-cart-plus me-2"></i> THÊM VÀO GIỎ
+                    </button>
+                </div>
+                <div class="col-sm-6">
+                    <button type="submit" name="buy_now" value="1" class="btn btn-danger btn-lg w-100 shadow-sm fw-bold" id="btn-buy-now" {{ $product->has_variations ? 'disabled' : '' }}>
+                        <i class="bi bi-lightning-fill me-2"></i> MUA NGAY
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -202,6 +211,7 @@
         const stockEl = document.getElementById('display_stock');
         const varIdInput = document.getElementById('selected_variation_id');
         const btnAddCart = document.getElementById('btn-add-cart');
+        const btnBuyNow = document.getElementById('btn-buy-now');
         const warningText = document.getElementById('variation-warning');
         const qtyInput = document.getElementById('quantity_input');
 
@@ -228,6 +238,9 @@
                     qtyInput.value = 1;
 
                     btnAddCart.disabled = false;
+                    if (btnBuyNow) {
+                        btnBuyNow.disabled = false;
+                    }
                     warningText.classList.add('d-none');
                 }
             });

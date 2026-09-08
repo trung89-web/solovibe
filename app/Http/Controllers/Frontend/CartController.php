@@ -42,7 +42,18 @@ class CartController extends Controller
         }
 
         $result = $this->cartService->add($product, $request->quantity, $variation);
+
+        if ($request->filled('buy_now')) {
+            return redirect()->route('checkout.index');
+        }
+
         return back()->with('success', $result['message']);
+    }
+
+    public function buyNow(Request $request)
+    {
+        $request->merge(['buy_now' => 1]);
+        return $this->add($request);
     }
 
     public function update(Request $request, $cartKey)

@@ -41,6 +41,7 @@ use App\Http\Controllers\Frontend\CartController;
 Route::prefix('gio-hang')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
+    Route::post('/buy-now/{product}', [CartController::class, 'buyNow'])->name('buyNow');
     Route::patch('/update/{productId}', [CartController::class, 'update'])->name('update');
     Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
