@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class Product extends Model
 {
@@ -117,6 +118,69 @@ class Product extends Model
     public function variations(): HasMany
     {
         return $this->hasMany(ProductVariation::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        if (!Schema::hasTable('product_reviews')) {
+            return 0;
+        }
+
+        return round((float) $this->reviews()->avg('rating'), 1) ?: 0;
+    }
+
+    public function getReviewCountAttribute(): int
+    {
+        if (!Schema::hasTable('product_reviews')) {
+            return 0;
+        }
+
+        return (int) $this->reviews()->count();
+    }
+
+    public function getMaterialAttribute(): ?string
+    {
+        return $this->tree_age;
+    }
+
+    public function getSoleHeightCmAttribute(): ?int
+    {
+        return $this->tree_height_cm;
+    }
+
+    public function getWarrantyAttribute(): ?string
+    {
+        return $this->fruit_harvest_time;
+    }
+
+    public function getGenderStyleAttribute(): string
+    {
+        return match ($this->planting_season) {
+            'summer' => 'Mùa Hè / Thoáng khí',
+            'autumn' => 'Thu - Đông / Ấm áp',
+            'winter' => 'Chống nước / Cổ cao',
+            'spring' => 'Xuân - Hè',
+            default  => 'Bốn mùa / Unisex',
+        };
+    }
+
+    public function scopeBySize(Builder $query, ?string $size): Builder
+    {
+        if (!$size) return $query;
+        return $query->whereHas('variations.attributeValues', function ($q) use ($size) {
+            $q->where('value', $size);
+        });
+    }
+
+    public function scopeByBrand(Builder $query, ?string $brand): Builder
+    {
+        if (!$brand) return $query;
+        return $query->where('origin', 'like', "%{$brand}%");
     }
 
     public function attributes() // Lấy các nhóm thuộc tính đang áp dụng cho SP này

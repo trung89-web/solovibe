@@ -35,5 +35,25 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function paymentTransactions()
+    {
+        return $this->hasMany(PaymentTransaction::class);
+    }
+
+    public function getAllowedNextStatuses(): array
+    {
+        $statusFlow = [
+            'pending' => ['pending', 'processing'],
+            'processing' => ['processing', 'packed'],
+            'packed' => ['packed', 'shipping'],
+            'shipping' => ['shipping', 'completed'],
+            'completed' => ['completed'],
+            'cancelled' => ['cancelled'],
+            'returned' => ['returned'],
+        ];
+
+        return $statusFlow[$this->order_status] ?? [$this->order_status];
+    }
 }
 

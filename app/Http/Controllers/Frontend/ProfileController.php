@@ -18,7 +18,7 @@ class ProfileController extends Controller
                 $q->orderBy('is_default', 'desc')->latest();
             },
             'orders' => function ($q) {
-                $q->with(['items.product', 'items.variation.attributeValues'])->latest();
+                $q->with(['items.product', 'items.variation.attributeValues', 'items.review'])->latest();
             }
         ]);
         return view('frontend.profile.index', compact('user'));

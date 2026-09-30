@@ -19,7 +19,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên sản phẩm <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" placeholder="VD: Bưởi Phúc Trạch Chuẩn Giống F1" required>
+                            <input type="text" name="name" class="form-control" placeholder="VD: Nike Air Jordan 1 Retro High OG" required>
                         </div>
                         
                         <div class="row">
@@ -40,35 +40,35 @@
                     </div>
                 </div>
 
-                <!-- 2. Thông số kỹ thuật nông nghiệp -->
+                <!-- 2. Thông số kỹ thuật Giày & Thời trang -->
                 <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white pt-3 pb-2"><h5 class="fw-bold">Thông số kỹ thuật</h5></div>
+                    <div class="card-header bg-white pt-3 pb-2"><h5 class="fw-bold">Thông số kỹ thuật & Chi tiết Giày</h5></div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Xuất xứ</label>
-                                <input type="text" name="origin" class="form-control" placeholder="VD: Đồng Nai">
+                                <label class="form-label fw-bold">Thương hiệu & Xuất xứ</label>
+                                <input type="text" name="origin" class="form-control" placeholder="VD: Nike - Chính Hãng">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Độ tuổi cây</label>
-                                <input type="text" name="tree_age" class="form-control" placeholder="VD: 10 tháng tuổi">
+                                <label class="form-label fw-bold">Chất liệu thân giày (Upper)</label>
+                                <input type="text" name="tree_age" class="form-control" placeholder="VD: Da bò thật 100%, Flyknit, Da lộn...">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Chiều cao (cm)</label>
-                                <input type="number" name="tree_height_cm" class="form-control" placeholder="VD: 80">
+                                <label class="form-label fw-bold">Độ cao đế (cm)</label>
+                                <input type="number" name="tree_height_cm" class="form-control" placeholder="VD: 3 hoặc 4">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Thời gian thu hoạch</label>
-                                <input type="text" name="fruit_harvest_time" class="form-control" placeholder="VD: 30 - 36 tháng">
+                                <label class="form-label fw-bold">Chế độ bảo hành & Kiểu dáng</label>
+                                <input type="text" name="fruit_harvest_time" class="form-control" placeholder="VD: Bảo hành 12 tháng, Low-top">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Mùa vụ trồng</label>
+                                <label class="form-label fw-bold">Phong cách / Phù hợp</label>
                                 <select name="planting_season" class="form-select">
-                                    <option value="all_year">Quanh năm</option>
-                                    <option value="spring">Mùa Xuân</option>
-                                    <option value="summer">Mùa Hè</option>
-                                    <option value="autumn">Mùa Thu</option>
-                                    <option value="winter">Mùa Đông</option>
+                                    <option value="all_year">Bốn mùa / Unisex năng động</option>
+                                    <option value="spring">Xuân - Hè / Thoáng khí</option>
+                                    <option value="summer">Mùa Hè / Thể thao năng động</option>
+                                    <option value="autumn">Thu - Đông / Ấm áp</option>
+                                    <option value="winter">Mùa Đông / Kháng nước</option>
                                 </select>
                             </div>
                         </div>
@@ -81,15 +81,15 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả ngắn</label>
-                            <textarea name="short_description" class="form-control" rows="3" placeholder="Đoạn văn ngắn giới thiệu sản phẩm..."></textarea>
+                            <textarea name="short_description" class="form-control" rows="3" placeholder="Đoạn văn ngắn giới thiệu điểm nổi bật của mẫu giày..."></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Mô tả chi tiết</label>
-                            <textarea name="description" class="form-control" rows="5"></textarea>
+                            <label class="form-label fw-bold">Mô tả chi tiết & Công nghệ</label>
+                            <textarea name="description" class="form-control" rows="5" placeholder="Chi tiết chất liệu, công nghệ đệm, độ bám đế..."></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Hướng dẫn chăm sóc</label>
-                            <textarea name="care_instructions" class="form-control" rows="4" placeholder="Cần tưới đẫm nước trong giai đoạn quả non..."></textarea>
+                            <label class="form-label fw-bold">Hướng dẫn vệ sinh & Bảo quản giày</label>
+                            <textarea name="care_instructions" class="form-control" rows="4" placeholder="VD: Dùng bọt vệ sinh chuyên dụng, không giặt máy giặt, phơi nơi râm mát..."></textarea>
                         </div>
                     </div>
                 </div>

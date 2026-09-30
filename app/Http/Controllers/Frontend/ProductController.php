@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Http\Requests\Frontend\ProductFilterRequest;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
@@ -17,18 +18,20 @@ class ProductController extends Controller
         // Lấy các tham số lọc đã qua validation
         $filters = $request->validated();
 
-        // Build query bằng các local scopes đã tạo ở Task 3
+        // Build query bằng các local scopes
         $products = Product::published()
             ->search($filters['keyword'] ?? null)
             ->inCategory($filters['category_id'] ?? null)
             ->bySeason($filters['season'] ?? null)
             ->byPriceRange($filters['min_price'] ?? null, $filters['max_price'] ?? null)
+            ->bySize($filters['size'] ?? null)
+            ->byBrand($filters['brand'] ?? null)
             ->byTreeAge($filters['tree_age'] ?? null)
             ->sortBy($filters['sort'] ?? 'newest')
             ->paginate(12)
             ->withQueryString(); // Giữ nguyên các tham số trên URL khi chuyển trang
 
-        // Load danh mục để hiển thị ở Sidebar (chỉ lấy danh mục cha và các danh mục con đang active)
+        // Load danh mục để hiển thị ở Sidebar
         $categories = Category::where('is_active', true)
             ->whereNull('parent_id')
             ->with(['children' => function($q) {
@@ -36,7 +39,11 @@ class ProductController extends Controller
             }])
             ->get();
 
-        return view('frontend.products.index', compact('products', 'categories'));
+        // Load danh sách Size để hiển thị trên bộ lọc
+        $sizeAttr = \App\Models\Attribute::where('name', 'like', '%Size%')->first();
+        $availableSizes = $sizeAttr ? $sizeAttr->values : collect();
+
+        return view('frontend.products.index', compact('products', 'categories', 'availableSizes'));
     }
 
     /**
@@ -49,8 +56,14 @@ class ProductController extends Controller
             'images', 
             'category', 
             'attributes.values', 
-            'variations.attributeValues'
+            'variations.attributeValues',
         ])->where('slug', $slug)->firstOrFail();
+
+        if (Schema::hasTable('product_reviews')) {
+            $product->load('reviews.user');
+        } else {
+            $product->setRelation('reviews', collect());
+        }
 
         // 2. Tăng lượt xem
         $product->increment('views_count');

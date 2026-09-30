@@ -11,9 +11,9 @@ class AttributeSeeder extends Seeder
     public function run(): void
     {
         $defaultAttributes = [
-            'Kích thước / Độ tuổi' => ['Cây giống', 'Cây choai', 'Cây trưởng thành'],
-            'Phương pháp nhân giống' => ['Gieo hạt', 'Chiết cành', 'Ghép mắt'],
-            'Tình trạng đóng gói' => ['Rễ trần', 'Bầu nhỏ', 'Vô chậu / Bầu to']
+            'Kích cỡ (Size)' => ['36', '37', '38', '39', '40', '41', '42', '43', '44'],
+            'Màu sắc' => ['Trắng (White)', 'Đen (Black)', 'Xám (Grey)', 'Xanh Navy', 'Đỏ (Red)', 'Phối màu'],
+            'Chất liệu' => ['Da thật cao cấp', 'Vải dệt Flyknit', 'Da lộn (Suede)', 'Vải Canvas chịu lực']
         ];
 
         $sortAttr = 0;

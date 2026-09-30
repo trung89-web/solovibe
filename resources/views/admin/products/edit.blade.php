@@ -49,35 +49,35 @@
                     </div>
                 </div>
 
-                <!-- 2. Thông số kỹ thuật nông nghiệp -->
+                <!-- 2. Thông số kỹ thuật Giày & Thời trang -->
                 <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white pt-3 pb-2"><h5 class="fw-bold">Thông số kỹ thuật</h5></div>
+                    <div class="card-header bg-white pt-3 pb-2"><h5 class="fw-bold">Thông số kỹ thuật & Chi tiết Giày</h5></div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Xuất xứ</label>
-                                <input type="text" name="origin" class="form-control" value="{{ old('origin', $product->origin) }}">
+                                <label class="form-label fw-bold">Thương hiệu & Xuất xứ</label>
+                                <input type="text" name="origin" class="form-control" value="{{ old('origin', $product->origin) }}" placeholder="VD: Nike - Chính Hãng">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Độ tuổi cây</label>
-                                <input type="text" name="tree_age" class="form-control" value="{{ old('tree_age', $product->tree_age) }}">
+                                <label class="form-label fw-bold">Chất liệu thân giày (Upper)</label>
+                                <input type="text" name="tree_age" class="form-control" value="{{ old('tree_age', $product->tree_age) }}" placeholder="VD: Da bò thật 100%, Flyknit...">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">Chiều cao (cm)</label>
-                                <input type="number" name="tree_height_cm" class="form-control" value="{{ old('tree_height_cm', $product->tree_height_cm) }}">
+                                <label class="form-label fw-bold">Độ cao đế (cm)</label>
+                                <input type="number" name="tree_height_cm" class="form-control" value="{{ old('tree_height_cm', $product->tree_height_cm) }}" placeholder="VD: 3 hoặc 4">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Thời gian thu hoạch</label>
-                                <input type="text" name="fruit_harvest_time" class="form-control" value="{{ old('fruit_harvest_time', $product->fruit_harvest_time) }}">
+                                <label class="form-label fw-bold">Chế độ bảo hành & Kiểu dáng</label>
+                                <input type="text" name="fruit_harvest_time" class="form-control" value="{{ old('fruit_harvest_time', $product->fruit_harvest_time) }}" placeholder="VD: Bảo hành 12 tháng, Low-top">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Mùa vụ trồng</label>
+                                <label class="form-label fw-bold">Phong cách / Phù hợp</label>
                                 <select name="planting_season" class="form-select">
-                                    <option value="all_year" {{ old('planting_season', $product->planting_season) == 'all_year' ? 'selected' : '' }}>Quanh năm</option>
-                                    <option value="spring" {{ old('planting_season', $product->planting_season) == 'spring' ? 'selected' : '' }}>Mùa Xuân</option>
-                                    <option value="summer" {{ old('planting_season', $product->planting_season) == 'summer' ? 'selected' : '' }}>Mùa Hè</option>
-                                    <option value="autumn" {{ old('planting_season', $product->planting_season) == 'autumn' ? 'selected' : '' }}>Mùa Thu</option>
-                                    <option value="winter" {{ old('planting_season', $product->planting_season) == 'winter' ? 'selected' : '' }}>Mùa Đông</option>
+                                    <option value="all_year" {{ old('planting_season', $product->planting_season) == 'all_year' ? 'selected' : '' }}>Bốn mùa / Unisex năng động</option>
+                                    <option value="spring" {{ old('planting_season', $product->planting_season) == 'spring' ? 'selected' : '' }}>Xuân - Hè / Thoáng khí</option>
+                                    <option value="summer" {{ old('planting_season', $product->planting_season) == 'summer' ? 'selected' : '' }}>Mùa Hè / Thể thao năng động</option>
+                                    <option value="autumn" {{ old('planting_season', $product->planting_season) == 'autumn' ? 'selected' : '' }}>Thu - Đông / Ấm áp</option>
+                                    <option value="winter" {{ old('planting_season', $product->planting_season) == 'winter' ? 'selected' : '' }}>Mùa Đông / Kháng nước</option>
                                 </select>
                             </div>
                         </div>
@@ -93,11 +93,11 @@
                             <textarea name="short_description" class="form-control" rows="3">{{ old('short_description', $product->short_description) }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Mô tả chi tiết</label>
+                            <label class="form-label fw-bold">Mô tả chi tiết & Công nghệ</label>
                             <textarea name="description" id="editor" class="form-control" rows="5">{{ old('description', $product->description) }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Hướng dẫn chăm sóc</label>
+                            <label class="form-label fw-bold">Hướng dẫn vệ sinh & Bảo quản giày</label>
                             <textarea name="care_instructions" class="form-control" rows="4">{{ old('care_instructions', $product->care_instructions) }}</textarea>
                         </div>
                     </div>

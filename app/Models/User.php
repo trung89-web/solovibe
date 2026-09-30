@@ -16,6 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_locked',
     ];
 
     protected $hidden = [
@@ -28,6 +29,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_locked' => 'boolean',
         ];
     }
 
@@ -39,5 +41,10 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function productReviews()
+    {
+        return $this->hasMany(ProductReview::class);
     }
 }

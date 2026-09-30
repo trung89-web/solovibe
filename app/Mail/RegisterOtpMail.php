@@ -22,7 +22,7 @@ class RegisterOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Mã xác thực đăng ký tài khoản (OTP) - Fruit Tree',
+            subject: 'Mã xác thực đăng ký tài khoản (OTP) - Solevibe Sneaker',
         );
     }
 

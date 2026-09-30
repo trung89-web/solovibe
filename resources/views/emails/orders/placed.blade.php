@@ -23,7 +23,7 @@
             border: 1px solid #e9ecef;
         }
         .email-header {
-            background-color: #198754;
+            background-color: #e11d48;
             color: #ffffff;
             padding: 24px;
             text-align: center;
@@ -158,11 +158,11 @@
             </div>
 
             <!-- Danh sách sản phẩm -->
-            <h3 style="margin-bottom: 10px; font-size: 15px; color: #198754; border-bottom: 1px solid #e9ecef; padding-bottom: 6px;">DANH SÁCH CÂY GIỐNG ĐÃ ĐẶT</h3>
+            <h3 style="margin-bottom: 10px; font-size: 15px; color: #e11d48; border-bottom: 1px solid #e9ecef; padding-bottom: 6px;">DANH SÁCH SẢN PHẨM ĐÃ ĐẶT</h3>
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th>Cây giống</th>
+                        <th>Sản phẩm</th>
                         <th class="text-center" style="width: 15%;">SL</th>
                         <th class="text-right" style="width: 25%;">Đơn giá</th>
                         <th class="text-right" style="width: 25%;">Thành tiền</th>
@@ -207,7 +207,7 @@
         <!-- Footer -->
         <div class="email-footer">
             <p style="margin: 0 0 5px 0;">Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ hotline hỗ trợ hoặc phản hồi trực tiếp email này.</p>
-            <p style="margin: 0; font-weight: bold; color: #198754;">Fruit Tree - Cửa hàng cây giống & nông sản chất lượng cao</p>
+            <p style="margin: 0; font-weight: bold; color: #e11d48;">SoleVibe - Thế giới Sneaker & Giày thể thao chính hãng</p>
         </div>
     </div>
 </body>

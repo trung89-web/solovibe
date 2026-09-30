@@ -20,6 +20,8 @@ class ProductFilterRequest extends FormRequest
             'season' => ['nullable', 'string', 'in:spring,summer,autumn,winter,all_year'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'gte:min_price'],
+            'size' => ['nullable', 'string', 'max:20'],
+            'brand' => ['nullable', 'string', 'max:100'],
             'tree_age' => ['nullable', 'string', 'max:50'],
             'sort' => ['nullable', 'string', 'in:price_asc,price_desc,newest,best_selling'],
         ];

@@ -29,7 +29,7 @@
     <div class="row">
         <!-- Cột trái: Form thêm mới -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm border-0 border-top border-success border-4">
+            <div class="card shadow-sm border-0 border-top border-danger border-4">
                 <div class="card-header bg-white border-bottom-0 pt-3">
                     <h5 class="fw-bold mb-0">Thêm Nhóm mới</h5>
                 </div>
@@ -38,14 +38,14 @@
                         @csrf
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên Nhóm Thuộc Tính</label>
-                            <input type="text" name="name" class="form-control" placeholder="VD: Kích thước, Màu sắc..." required>
+                            <input type="text" name="name" class="form-control" placeholder="VD: Kích cỡ (Size), Màu sắc..." required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Các giá trị (Ngăn cách bằng dấu phẩy)</label>
-                            <textarea name="values" class="form-control" rows="3" placeholder="VD: Cây giống, Cây choai, Cây trưởng thành" required></textarea>
+                            <textarea name="values" class="form-control" rows="3" placeholder="VD: 38, 39, 40, 41, 42, 43 hoặc Trắng, Đen, Đỏ, Xám" required></textarea>
                             <div class="form-text">Hệ thống sẽ tự động tách các giá trị này ra.</div>
                         </div>
-                        <button type="submit" class="btn btn-success w-100 shadow-sm fw-bold">
+                        <button type="submit" class="btn btn-danger w-100 shadow-sm fw-bold">
                             <i class="bi bi-plus-circle me-1"></i> THÊM MỚI
                         </button>
                     </form>

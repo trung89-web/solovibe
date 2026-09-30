@@ -168,12 +168,12 @@
                             @if($user->orders->isEmpty())
                                 <div class="text-center py-5">
                                     <div class="mb-3 text-muted opacity-50">
-                                        <i class="bi bi-basket3" style="font-size: 4rem;"></i>
+                                        <i class="bi bi-bag-x" style="font-size: 4rem;"></i>
                                     </div>
                                     <h5 class="fw-bold text-secondary">Bạn chưa có đơn hàng nào</h5>
-                                    <p class="text-muted small mb-4">Hãy khám phá các loại cây giống năng suất cao và đặt mua ngay hôm nay!</p>
-                                    <a href="{{ route('frontend.products.index') }}" class="btn btn-primary px-4 shadow-sm">
-                                        <i class="bi bi-shop me-1"></i> Khám phá sản phẩm
+                                    <p class="text-muted small mb-4">Hãy khám phá bộ sưu tập sneaker & giày thể thao hot nhất và đặt mua ngay hôm nay!</p>
+                                    <a href="{{ route('frontend.products.index') }}" class="btn btn-danger px-4 shadow-sm rounded-pill">
+                                        <i class="bi bi-shop me-1"></i> Khám phá bộ sưu tập Giày
                                     </a>
                                 </div>
                             @else
@@ -400,6 +400,61 @@
                                                                         <td class="text-center small fw-semibold">x{{ $item->quantity }}</td>
                                                                         <td class="text-end pe-3 text-danger fw-bold small">{{ number_format($item->subtotal ?? ($item->price * $item->quantity), 0, ',', '.') }} ₫</td>
                                                                     </tr>
+                                                                    @if($order->order_status === 'completed')
+                                                                        <tr>
+                                                                            <td colspan="6" class="px-3 py-3 bg-light">
+                                                                                @if($item->review)
+                                                                                    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                                                                                        <div>
+                                                                                            <span class="fw-semibold text-dark small">Đánh giá của bạn:</span>
+                                                                                            <div class="text-warning mt-1">
+                                                                                                @for($i = 1; $i <= 5; $i++)
+                                                                                                    <i class="bi bi-star{{ $i <= $item->review->rating ? '-fill' : '' }}"></i>
+                                                                                                @endfor
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <form action="{{ route('reviews.destroy', $item->review) }}" method="POST" class="d-inline">
+                                                                                            @csrf
+                                                                                            @method('DELETE')
+                                                                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')">
+                                                                                                <i class="bi bi-trash me-1"></i>Xóa đánh giá
+                                                                                            </button>
+                                                                                        </form>
+                                                                                    </div>
+                                                                                    @if($item->review->comment)
+                                                                                        <div class="mt-2 small text-secondary border rounded p-2 bg-white">
+                                                                                            {{ $item->review->comment }}
+                                                                                        </div>
+                                                                                    @endif
+                                                                                @else
+                                                                                    <form action="{{ route('reviews.store') }}" method="POST" class="row g-2 align-items-end">
+                                                                                        @csrf
+                                                                                        <input type="hidden" name="order_item_id" value="{{ $item->id }}">
+                                                                                        <div class="col-md-3">
+                                                                                            <label class="form-label small mb-1">Đánh giá</label>
+                                                                                            <select name="rating" class="form-select form-select-sm" required>
+                                                                                                <option value="">Chọn sao</option>
+                                                                                                <option value="5">5 sao</option>
+                                                                                                <option value="4">4 sao</option>
+                                                                                                <option value="3">3 sao</option>
+                                                                                                <option value="2">2 sao</option>
+                                                                                                <option value="1">1 sao</option>
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-md-7">
+                                                                                            <label class="form-label small mb-1">Bình luận</label>
+                                                                                            <textarea name="comment" rows="1" class="form-control form-control-sm" placeholder="Chia sẻ cảm nhận của bạn..."></textarea>
+                                                                                        </div>
+                                                                                        <div class="col-md-2 text-end">
+                                                                                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                                                                <i class="bi bi-star-fill me-1"></i>Gửi
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </form>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endif
                                                                 @endforeach
                                                             </tbody>
                                                         </table>

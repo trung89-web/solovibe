@@ -31,6 +31,20 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('locked users cannot authenticate', function () {
+    $user = User::factory()->create([
+        'is_locked' => true,
+    ]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+    $this->assertSessionHasErrors('email');
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 

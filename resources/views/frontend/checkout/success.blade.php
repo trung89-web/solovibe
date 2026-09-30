@@ -12,17 +12,22 @@
                             <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
                         </div>
                     </div>
-                    <h2 class="fw-bold text-success mb-2">Đặt Hàng Thành Công!</h2>
+                    <h2 class="fw-bold text-dark mb-2">Đặt Hàng Thành Công!</h2>
                     <p class="text-muted fs-6 mb-4">
-                        Cảm ơn bạn đã tin tưởng lựa chọn mua sắm tại <strong>Cây Giống Tốt</strong>.<br>
-                        Đơn hàng của bạn đã được tiếp nhận và đang được bộ phận vận hành chuẩn bị chu đáo.
+                        Cảm ơn bạn đã tin tưởng lựa chọn mua sắm tại <strong>SoleVibe - Sneaker & Footwear</strong>.<br>
+                        Đơn hàng của bạn đã được tiếp nhận và đang được đóng gói cẩn thận bằng hộp Double-Box chuẩn form.
                     </p>
 
                     <div class="d-flex flex-wrap justify-content-center gap-2">
-                        <a href="{{ route('profile.index') }}#orders" class="btn btn-success px-4 py-2 fw-semibold shadow-sm">
+                        @if($order->payment_method === 'momo' && $order->payment_status !== 'paid')
+                            <a href="{{ route('payment.momo', $order->id) }}" class="btn btn-danger px-4 py-2 fw-bold shadow-sm rounded-pill">
+                                <i class="bi bi-qr-code-scan me-1"></i> Thanh toán ngay qua MoMo
+                            </a>
+                        @endif
+                        <a href="{{ route('profile.index') }}#orders" class="btn btn-outline-danger px-4 py-2 fw-semibold shadow-sm rounded-pill">
                             <i class="bi bi-bag-check me-1"></i> Xem đơn hàng trong tài khoản
                         </a>
-                        <a href="{{ route('frontend.products.index') }}" class="btn btn-outline-success px-4 py-2 fw-semibold">
+                        <a href="{{ route('frontend.products.index') }}" class="btn btn-outline-dark px-4 py-2 fw-semibold rounded-pill">
                             <i class="bi bi-shop me-1"></i> Tiếp tục mua sắm
                         </a>
                     </div>
@@ -203,7 +208,7 @@
 
             <!-- Footer Support Contact -->
             <div class="p-3 bg-light rounded text-center text-muted small mb-5">
-                <i class="bi bi-info-circle me-1"></i> Nếu bạn cần hỗ trợ hoặc có thắc mắc về đơn hàng, vui lòng liên hệ hotline: <strong class="text-dark">1900 6868</strong> hoặc email: <strong class="text-dark">support@caygiongtot.vn</strong>.
+                <i class="bi bi-info-circle me-1"></i> Nếu bạn cần hỗ trợ hoặc có thắc mắc về đơn hàng, vui lòng liên hệ hotline: <strong class="text-dark">1900 6868</strong> hoặc email: <strong class="text-dark">support@solevibe.vn</strong>.
             </div>
         </div>
     </div>

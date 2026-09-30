@@ -332,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const totalDisplay = document.getElementById('order-total-display');
         const shippingInput = document.getElementById('shipping_fee_input');
 
-        // Disable nút Submit và đổi text trước khi gọi AJAX/fetch
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Đang tính phí...';
@@ -368,28 +367,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 totalDisplay.textContent = data.formatted_total;
                 shippingInput.value = data.shipping_fee;
 
-                // Gỡ thuộc tính disabled và phục hồi text
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
                 }
             } else {
                 if (submitBtn) {
-                    submitBtn.disabled = true;
+                    submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
                 }
-                alert('Không thể tính phí vận chuyển, vui lòng thử lại');
+                alert('Không thể tính phí vận chuyển tự động, hệ thống sử dụng phí mặc định.');
             }
         })
         .catch(err => {
-            console.error('Lỗi tính phí ship', err);
+            console.error('Lỗi tính phí ship:', err);
             if (submitBtn) {
-                submitBtn.disabled = true;
+                submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT HÀNG';
             }
-            shippingDisplay.textContent = 'Lỗi tính phí';
+            shippingDisplay.textContent = '35.000 đ (Mặc định)';
             shippingDisplay.className = 'text-danger fw-semibold';
-            alert('Không thể tính phí vận chuyển, vui lòng thử lại');
+            shippingInput.value = 35000;
         });
     }
 
@@ -451,4 +449,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-

@@ -61,17 +61,42 @@ class ProductController extends Controller
             // 3. Tạo Sản phẩm cha (Bảng products)
             // (Lưu ý: Các biến như thumbnail, description bạn hãy giữ nguyên như code upload cũ của bạn nhé, 
             // ở đây tôi lược bớt để tập trung vào logic Biến thể)
+            $thumbnailPath = null;
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('products', 'public');
+            }
+
             $product = Product::create([
                 'category_id' => $request->category_id,
                 'name' => $request->name,
                 'slug' => \Str::slug($request->name),
                 'sku' => $request->sku,
+                'origin' => $request->origin,
+                'tree_age' => $request->tree_age ?? $request->material,
+                'tree_height_cm' => $request->tree_height_cm ?? $request->sole_height_cm,
+                'fruit_harvest_time' => $request->fruit_harvest_time ?? $request->warranty,
+                'planting_season' => $request->planting_season ?? 'all_year',
+                'short_description' => $request->short_description,
+                'description' => $request->description,
+                'care_instructions' => $request->care_instructions,
+                'thumbnail' => $thumbnailPath,
                 'price' => $basePrice,
                 'sale_price' => $baseSalePrice,
                 'stock_quantity' => $totalStock,
                 'has_variations' => $hasVariations,
-                'status' => 'published', // Hoặc lấy từ request
+                'status' => $request->status ?? 'published',
+                'is_featured' => $request->has('is_featured'),
             ]);
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('products', 'public');
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $path,
+                    ]);
+                }
+            }
 
             // 4. Xử lý lưu Phân loại hàng hóa (Variations)
             if ($hasVariations && $request->has('variations')) {
@@ -192,6 +217,25 @@ class ProductController extends Controller
                 'status' => $request->status,
                 'is_featured' => $request->has('is_featured'),
             ]);
+
+            if ($request->hasFile('thumbnail')) {
+                if ($product->thumbnail && Storage::disk('public')->exists($product->thumbnail)) {
+                    Storage::disk('public')->delete($product->thumbnail);
+                }
+                $product->update([
+                    'thumbnail' => $request->file('thumbnail')->store('products', 'public'),
+                ]);
+            }
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('products', 'public');
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $path,
+                    ]);
+                }
+            }
 
             // 2. Cập nhật Biến thể
             if ($hasVariations && $request->has('variations')) {

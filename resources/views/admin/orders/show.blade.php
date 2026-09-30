@@ -17,11 +17,13 @@
         @if($order->order_status === 'pending')
             <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="bi bi-clock-history me-1"></i>Chờ xác nhận</span>
         @elseif($order->order_status === 'processing')
-            <span class="badge bg-info text-dark fs-6 px-3 py-2"><i class="bi bi-gear me-1"></i>Đang chuẩn bị</span>
+            <span class="badge bg-info text-dark fs-6 px-3 py-2"><i class="bi bi-gear me-1"></i>Đang xử lý</span>
+        @elseif($order->order_status === 'packed')
+            <span class="badge bg-secondary fs-6 px-3 py-2"><i class="bi bi-box-seam me-1"></i>Đã đóng gói</span>
         @elseif($order->order_status === 'shipping')
-            <span class="badge bg-primary fs-6 px-3 py-2"><i class="bi bi-truck me-1"></i>Đang giao hàng</span>
+            <span class="badge bg-primary fs-6 px-3 py-2"><i class="bi bi-truck me-1"></i>Đang vận chuyển</span>
         @elseif($order->order_status === 'completed')
-            <span class="badge bg-success fs-6 px-3 py-2"><i class="bi bi-check-circle me-1"></i>Hoàn thành</span>
+            <span class="badge bg-success fs-6 px-3 py-2"><i class="bi bi-check-circle me-1"></i>Đã giao</span>
         @elseif($order->order_status === 'cancelled')
             <span class="badge bg-danger fs-6 px-3 py-2"><i class="bi bi-x-circle me-1"></i>Đã hủy</span>
         @elseif($order->order_status === 'returned')
@@ -57,7 +59,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $itemsSubtotal = 0; @endphp
+                            @php
+                                $itemsSubtotal = 0;
+                            @endphp
                             @foreach($order->items as $item)
                                 @php
                                     $itemSubtotal = $item->subtotal ?? ($item->price * $item->quantity);
@@ -173,14 +177,15 @@
                         <label class="form-label fw-bold">Trạng thái đơn hàng <span class="text-danger">*</span></label>
                         <select name="order_status" class="form-select form-select-lg">
                             <option value="pending" {{ $order->order_status === 'pending' ? 'selected' : '' }}>⏳ Chờ xác nhận</option>
-                            <option value="processing" {{ $order->order_status === 'processing' ? 'selected' : '' }}>📦 Đang chuẩn bị hàng</option>
-                            <option value="shipping" {{ $order->order_status === 'shipping' ? 'selected' : '' }}>🚚 Đang giao hàng</option>
-                            <option value="completed" {{ $order->order_status === 'completed' ? 'selected' : '' }}>✅ Hoàn thành (Đã giao)</option>
-                            <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>❌ Đã hủy (Tự động hoàn kho)</option>
+                            <option value="processing" {{ $order->order_status === 'processing' ? 'selected' : '' }}>⚙️ Đang xử lý</option>
+                            <option value="packed" {{ $order->order_status === 'packed' ? 'selected' : '' }}>📦 Đã đóng gói</option>
+                            <option value="shipping" {{ $order->order_status === 'shipping' ? 'selected' : '' }}>🚚 Đang vận chuyển</option>
+                            <option value="completed" {{ $order->order_status === 'completed' ? 'selected' : '' }}>✅ Đã giao</option>
+                            <option value="cancelled" {{ $order->order_status === 'cancelled' ? 'selected' : '' }}>❌ Đã hủy</option>
                             <option value="returned" {{ $order->order_status === 'returned' ? 'selected' : '' }}>🔄 Hoàn trả</option>
                         </select>
                         <div class="form-text text-muted">
-                            <i class="bi bi-info-circle me-1"></i> Khi chuyển sang <strong>Đã hủy</strong>, hệ thống sẽ tự động hoàn lại số lượng tồn kho cho các sản phẩm.
+                            <i class="bi bi-info-circle me-1"></i> Trạng thái <strong>Đang giao hàng</strong> được hệ thống tự cập nhật, không cho admin chỉnh tay.
                         </div>
                     </div>
 

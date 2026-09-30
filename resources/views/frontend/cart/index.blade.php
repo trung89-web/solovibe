@@ -2,14 +2,15 @@
 
 @section('content')
 <div class="mb-4">
-    <h3 class="fw-bold text-success"><i class="bi bi-cart-check"></i> GIỎ HÀNG CỦA BẠN</h3>
+    <h3 class="fw-bold text-dark"><i class="bi bi-bag-check-fill text-danger me-2"></i>GIỎ HÀNG CỦA BẠN</h3>
 </div>
 
 @if(empty($cart))
-    <div class="text-center py-5 bg-white shadow-sm rounded">
+    <div class="text-center py-5 bg-white shadow-sm rounded-4">
         <i class="bi bi-cart-x text-muted" style="font-size: 5rem;"></i>
-        <h5 class="mt-3 text-muted">Giỏ hàng của bạn đang trống!</h5>
-        <a href="{{ route('frontend.products.index') }}" class="btn btn-success mt-3 shadow-sm">Tiếp tục mua sắm</a>
+        <h5 class="mt-3 text-dark fw-bold">Giỏ hàng của bạn đang trống!</h5>
+        <p class="text-muted">Chưa có đôi giày nào trong giỏ. Khám phá các mẫu giày hot ngay!</p>
+        <a href="{{ route('frontend.products.index') }}" class="btn btn-danger rounded-pill px-4 mt-2 shadow-sm">Tiếp tục mua sắm</a>
     </div>
 @else
     <!-- Đổi Form này trỏ sang Checkout -->
@@ -99,20 +100,20 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 border-top border-success border-4 sticky-top" style="top: 20px;">
+                <div class="card shadow-sm border-0 border-top border-danger border-4 rounded-4 sticky-top" style="top: 80px;">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">Tóm tắt thanh toán</h5>
+                        <h5 class="fw-bold mb-4 text-dark">Tóm tắt thanh toán</h5>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted">Sản phẩm đã chọn:</span>
                             <span class="fw-bold" id="summary-count">0</span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-4 align-items-center">
-                            <span class="fw-bold fs-5">TỔNG CỘNG:</span>
+                            <span class="fw-bold fs-5 text-dark">TỔNG CỘNG:</span>
                             <span class="fw-bold fs-3 text-danger" id="summary-total">0đ</span>
                         </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-checkout" disabled>
-                            MUA HÀNG
+                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold shadow rounded-pill py-3" id="btn-checkout" disabled>
+                            <i class="bi bi-shield-check me-1"></i> TIẾN HÀNH ĐẶT HÀNG
                         </button>
                     </div>
                 </div>
